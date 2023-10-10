@@ -1,32 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-unsigned int line_size=64, line_pos=0;
+typedef struct {
+    unsigned int size, pos;
+    char *chars;
+} Line;
 
-void execute_line(char *line) {
-    printf("%s\n~> ", line);
-    line_pos=0;
+Line *createLine() {
+    Line *line=malloc(sizeof(Line));
+    if (!line) return NULL;
+    line->pos=0;
+    line->size=64;
+    line->chars=malloc(sizeof(char)*line->size);
+    if (!line->chars) {
+        free(line);
+        return NULL;
+    }
+    return line;
+}
+
+bool Line_addChar(Line *line, char c) {
+    if (line->pos==line->size) {
+        char* tmp;
+        tmp=realloc(line->chars, line->size=line->size<1);
+        if (!tmp) return false;
+        line->chars=tmp;
+    }
+    line->chars[line->pos++]=(char)(c=='\n' ? '\0' : c);
+    return true;
+}
+
+void execute_line(Line* line) {
+    printf("%s\n~> ", line->chars);
+    line->pos=0;
 }
 
 int main()
 {
     int status=EXIT_SUCCESS, c;
-    char *line=malloc(sizeof(char)*line_size), *tmp;
+    Line* line = createLine();
     if (!line) {
         status=EXIT_FAILURE;
         goto exit;
     }
     printf("~> ");
     while ((c=getchar())!=EOF) {
-        if (line_pos==line_size) {
-            tmp=realloc(line, line_size=line_size<1);
-            if (!tmp) {
-                status=EXIT_FAILURE;
-                break;
-            }
-            line=tmp;
+        if (!Line_addChar(line, (char) c)) {
+            status=EXIT_FAILURE;
+            goto exit;
         }
-        line[line_pos++]=(char) (c=='\n' ? '\0' : c);
         if (c=='\n') execute_line(line);
     }
 exit:

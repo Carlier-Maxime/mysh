@@ -23,7 +23,7 @@ Line *createLine() {
 bool Line_addChar(Line *line, char c) {
     if (line->pos==line->size) {
         char* tmp;
-        tmp=realloc(line->chars, line->size=line->size<1);
+        tmp=realloc(line->chars, line->size<<=1);
         if (!tmp) return false;
         line->chars=tmp;
     }

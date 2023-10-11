@@ -31,6 +31,12 @@ Line *createLine() {
     return line;
 }
 
+void destroyLine(Line *line) {
+    if (!line) return;
+    free(line->chars);
+    free(line);
+}
+
 bool Line_addChar(Line *line, char c) {
     if (line->pos==line->size) {
         char* tmp;
@@ -62,7 +68,7 @@ int main()
         if (c=='\n') execute_line(line);
     }
 exit:
-    free(line);
+    destroyLine(line);
     printf("\nexit mysh with status : %d\n", status);
     return status;
 }

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define IS_WHITE_SPACE(c) (c=='\n' || c==' ' || c=='\t' || c=='\v' || c=='\r')
+
 typedef enum {
     NO_ERROR=0,
     ALLOCATION_FAILED=1
@@ -47,13 +49,15 @@ bool Line_addChar(Line *line, char c) {
         }
         line->chars=tmp;
     }
-    line->chars[line->pos++]=(char)(c=='\n' ? '\0' : c);
+    bool isWhiteSpace = IS_WHITE_SPACE(c);
+    if ((line->pos && line->chars[line->pos-1]) || !isWhiteSpace) line->chars[line->pos++]=(char)(isWhiteSpace ? '\0' : c);
     status=NO_ERROR;
     return true;
 }
 
 void execute_line(Line* line) {
-    printf("%s\n~> ", line->chars);
+    for (unsigned int i=0; i<line->pos; i++) putchar(line->chars[i] ? line->chars[i] : ' ');
+    printf("\n~> ");
     line->pos=0;
 }
 

@@ -3,4 +3,6 @@ project(mysh C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(mysh main.c)
+add_executable(mysh src/main.c
+        src/Error.h
+        src/Error.c)

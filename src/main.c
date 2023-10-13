@@ -1,14 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "Error.h"
 
 #define IS_WHITE_SPACE(c) (c=='\n' || c==' ' || c=='\t' || c=='\v' || c=='\r')
-
-typedef enum {
-    NO_ERROR=0,
-    ALLOCATION_FAILED=1
-} Status;
-Status status=NO_ERROR;
 
 typedef struct {
     unsigned int size, pos;
@@ -18,7 +13,7 @@ typedef struct {
 Line *createLine() {
     Line *line=malloc(sizeof(Line));
     if (!line) {
-        status=ALLOCATION_FAILED;
+        Error_SetError(ERROR_MEMORY_ALLOCATION);
         return NULL;
     }
     line->pos=0;
@@ -26,10 +21,10 @@ Line *createLine() {
     line->chars=malloc(sizeof(char)*line->size);
     if (!line->chars) {
         free(line);
-        status=ALLOCATION_FAILED;
+        Error_SetError(ERROR_MEMORY_ALLOCATION);
         return NULL;
     }
-    status=NO_ERROR;
+    Error_SetError(ERROR_NONE);
     return line;
 }
 
@@ -44,14 +39,14 @@ bool Line_addChar(Line *line, char c) {
         char* tmp;
         tmp=realloc(line->chars, line->size<<=1);
         if (!tmp) {
-            status = ALLOCATION_FAILED;
+            Error_SetError(ERROR_MEMORY_ALLOCATION);
             return false;
         }
         line->chars=tmp;
     }
     bool isWhiteSpace = IS_WHITE_SPACE(c);
     if ((line->pos && line->chars[line->pos-1]) || !isWhiteSpace) line->chars[line->pos++]=(char)(isWhiteSpace ? '\0' : c);
-    status=NO_ERROR;
+    Error_SetError(ERROR_NONE);
     return true;
 }
 
@@ -73,6 +68,7 @@ int main()
     }
 exit:
     destroyLine(line);
-    printf("\nexit mysh with status : %d\n", status);
-    return status;
+    if (Error_GetErrorStatus()) Error_PrintErrorMsg("A Error is occurred");
+    printf("\nexit mysh with status : %d\n", Error_GetErrorStatus());
+    return Error_GetErrorStatus();
 }

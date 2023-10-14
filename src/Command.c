@@ -2,8 +2,7 @@
 #include <string.h>
 #include "Command.h"
 #include "Error.h"
-
-#define pv this->private
+#include "macro.h"
 
 typedef struct private_Command {
     char* name;

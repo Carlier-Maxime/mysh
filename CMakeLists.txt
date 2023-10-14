@@ -9,4 +9,5 @@ add_executable(mysh src/main.c
         src/CommandParser.h
         src/CommandParser.c
         src/Command.h
-        src/Command.c)
+        src/Command.c
+        src/macro.h)

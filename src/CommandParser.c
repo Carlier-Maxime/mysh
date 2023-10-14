@@ -1,9 +1,9 @@
 #include <malloc.h>
 #include "CommandParser.h"
 #include "Error.h"
+#include "macro.h"
 
 #define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
-#define pv this->private
 
 typedef struct private_CommandParser {
     unsigned int size, pos;

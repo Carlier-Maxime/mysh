@@ -39,10 +39,14 @@ cleanup:
 }
 
 bool execute(Command* this) {
-    if (!this) return false;
+    if (!this || !pv || !pv->name || !pv->args) {
+        Error_SetError(ERROR_NULL_POINTER);
+        return false;
+    }
     printf("%s", pv->name);
     for (size_t i=0; pv->args[i]; i++) printf(" %s", pv->args[i]);
     printf("\n~> ");
+    Error_SetError(ERROR_NONE);
     return true;
 }
 

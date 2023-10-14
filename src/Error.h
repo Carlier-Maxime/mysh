@@ -5,7 +5,8 @@
 
 typedef enum {
     ERROR_NONE=0,
-    ERROR_MEMORY_ALLOCATION=1
+    ERROR_MEMORY_ALLOCATION=1,
+    ERROR_NULL_POINTER=2
 } ErrorStatus;
 
 void Error_SetError(ErrorStatus newStatus);

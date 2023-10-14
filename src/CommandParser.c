@@ -12,10 +12,14 @@ typedef struct private_CommandParser {
 } private_CommandParser;
 
 bool executeCommandQueue(CommandParser* this) {
-    if (!this) return false;
+    if (!this) {
+        Error_SetError(ERROR_NULL_POINTER);
+        return false;
+    }
     for (unsigned int i=0; i<pv->pos; i++) putchar(pv->chars[i] ? pv->chars[i] : ' ');
     printf("\n~> ");
     pv->pos=0;
+    Error_SetError(ERROR_NONE);
     return true;
 }
 
@@ -42,6 +46,10 @@ cleanup:
 
 bool consumeChar(struct CommandParser* this, char c) {
     if (c==EOF) return false;
+    if (!this || !pv || !pv->chars) {
+        Error_SetError(ERROR_NULL_POINTER);
+        return false;
+    }
     if (pv->pos==pv->size) {
         char* tmp;
         tmp=realloc(pv->chars, pv->size<<=1);

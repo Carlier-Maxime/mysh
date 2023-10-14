@@ -5,7 +5,8 @@ ErrorStatus status = ERROR_NONE;
 
 const char* errorMsg[] = {
         "Success",
-        "Allocation memory failed"
+        "Allocation memory failed",
+        "Null Pointer error"
 };
 
 void Error_SetError(ErrorStatus newStatus) {

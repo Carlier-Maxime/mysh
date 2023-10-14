@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS = -Wall
-SRCDIR = src
-OBJDIR = obj
+CFLAGS = -Wall -pedantic
+SRC_DIR = src
+OBJ_DIR = obj
 
-SRC = $(wildcard $(SRCDIR)/*.c)
+SRC = $(wildcard $(SRC_DIR)/*.c)
 
-OBJ = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRC))
+OBJ = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 
 EXEC = mysh
 
@@ -14,12 +14,12 @@ all : $(EXEC)
 mysh : $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-obj/main.o : src/main.c
-	@mkdir -p $(OBJDIR)
+$(OBJ_DIR)/main.o : $(SRC_DIR)/main.c
+	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o : $(SRCDIR)/%.c $(SRCDIR)/%.h
-	@mkdir -p $(OBJDIR)
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(SRC_DIR)/%.h
+	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean :

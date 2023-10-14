@@ -9,7 +9,12 @@ typedef enum {
     ERROR_NULL_POINTER=2
 } ErrorStatus;
 
-void Error_SetError(ErrorStatus newStatus);
+#ifdef DEBUG
+#define Error_SetError(status) Error_SetError_(status, __FILE__, __LINE__)
+#else
+#define Error_SetError(status) Error_SetError_(status, NULL, 0)
+#endif
+void Error_SetError_(ErrorStatus newStatus, const char* file, unsigned int line);
 void Error_PrintErrorMsg(const char* prefix);
 ErrorStatus Error_GetErrorStatus();
 

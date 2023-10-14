@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.22)
 project(mysh C)
 
 set(CMAKE_C_STANDARD 11)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DDEBUG)
+endif()
 
 add_executable(mysh src/main.c
         src/Error.h

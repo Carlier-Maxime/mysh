@@ -8,8 +8,16 @@
 typedef struct private_CommandParser {
     unsigned int size, pos;
     char *chars;
-    bool executionReady;
+    bool (*executeCommandQueue)(CommandParser* this);
 } private_CommandParser;
+
+bool executeCommandQueue(CommandParser* this) {
+    if (!this) return false;
+    for (unsigned int i=0; i<pv->pos; i++) putchar(pv->chars[i] ? pv->chars[i] : ' ');
+    printf("\n~> ");
+    pv->pos=0;
+    return true;
+}
 
 private_CommandParser* privateCommandParser_create() {
     Error_SetError(ERROR_MEMORY_ALLOCATION);
@@ -17,7 +25,7 @@ private_CommandParser* privateCommandParser_create() {
     if (!this) return NULL;
     this->size=64;
     this->pos=0;
-    this->executionReady=false;
+    this->executeCommandQueue=executeCommandQueue;
     if (!(this->chars = malloc(sizeof(char)*this->size))) {
         free(this);
         return NULL;
@@ -33,6 +41,7 @@ void privateCommandParser_destroy(private_CommandParser *this) {
 }
 
 bool consumeChar(struct CommandParser* this, char c) {
+    if (c==EOF) return false;
     if (pv->pos==pv->size) {
         char* tmp;
         tmp=realloc(pv->chars, pv->size<<=1);
@@ -44,19 +53,9 @@ bool consumeChar(struct CommandParser* this, char c) {
     }
     bool isWhiteSpace = IS_WHITE_SPACE(c);
     if ((pv->pos && pv->chars[pv->pos-1]) || !isWhiteSpace) pv->chars[pv->pos++]=(char)(isWhiteSpace ? '\0' : c);
-    if (c=='\n') pv->executionReady=true;
+    if (c=='\n') pv->executeCommandQueue(this);
     Error_SetError(ERROR_NONE);
     return true;
-}
-
-bool isExecutionReady(struct CommandParser* this) {
-    return pv->executionReady;
-}
-
-void execute(CommandParser* this) {
-    for (unsigned int i=0; i<pv->pos; i++) putchar(pv->chars[i] ? pv->chars[i] : ' ');
-    printf("\n~> ");
-    pv->pos=0;
 }
 
 CommandParser* CommandParser_create() {
@@ -68,8 +67,6 @@ CommandParser* CommandParser_create() {
         return NULL;
     }
     this->consumeChar=consumeChar;
-    this->isExecutionReady=isExecutionReady;
-    this->execute=execute;
     Error_SetError(ERROR_NONE);
     return this;
 }

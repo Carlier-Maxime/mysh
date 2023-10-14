@@ -27,7 +27,7 @@ private_Command* privateCommand_create(const char* name, const char** args) {
     if (!this) return NULL;
     if  (!(this->name=strdup(name))) goto cleanup;
     int nb=0;
-    while (args[nb++]);
+    while (args[nb]) nb++;
     if (!(this->args=malloc(sizeof(char*)*(nb+1)))) goto cleanup;
     for (size_t i=0; i<nb; i++) if (!(this->args[i] = strdup(args[i]))) goto cleanup;
     this->args[nb] = NULL;

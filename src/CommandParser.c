@@ -19,6 +19,12 @@ bool executeCommandQueue(CommandParser* this) {
     return true;
 }
 
+void privateCommandParser_destroy(private_CommandParser *this) {
+    if (!this) return;
+    free(this->chars);
+    free(this);
+}
+
 private_CommandParser* privateCommandParser_create() {
     Error_SetError(ERROR_MEMORY_ALLOCATION);
     private_CommandParser *this = malloc(sizeof(private_CommandParser));
@@ -26,18 +32,12 @@ private_CommandParser* privateCommandParser_create() {
     this->size=64;
     this->pos=0;
     this->executeCommandQueue=executeCommandQueue;
-    if (!(this->chars = malloc(sizeof(char)*this->size))) {
-        free(this);
-        return NULL;
-    }
+    if (!(this->chars = malloc(sizeof(char)*this->size))) goto cleanup;
     Error_SetError(ERROR_NONE);
     return this;
-}
-
-void privateCommandParser_destroy(private_CommandParser *this) {
-    if (!this) return;
-    free(this->chars);
-    free(this);
+cleanup:
+    privateCommandParser_destroy(this);
+    return NULL;
 }
 
 bool consumeChar(struct CommandParser* this, char c) {
@@ -62,13 +62,13 @@ CommandParser* CommandParser_create() {
     Error_SetError(ERROR_MEMORY_ALLOCATION);
     CommandParser *this = malloc(sizeof(CommandParser));
     if (!this) return NULL;
-    if (!(pv=privateCommandParser_create())) {
-        free(this);
-        return NULL;
-    }
+    if (!(pv=privateCommandParser_create())) goto cleanup;
     this->consumeChar=consumeChar;
     Error_SetError(ERROR_NONE);
     return this;
+cleanup:
+    CommandParser_destroy(this);
+    return NULL;
 }
 
 void CommandParser_destroy(CommandParser* this) {

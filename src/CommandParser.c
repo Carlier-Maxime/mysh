@@ -2,7 +2,7 @@
 #include "CommandParser.h"
 #include "Error.h"
 
-#define IS_WHITE_SPACE(c) (c=='\n' || c==' ' || c=='\t' || c=='\v' || c=='\r')
+#define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
 #define pv this->private
 
 typedef struct private_CommandParser {

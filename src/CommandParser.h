@@ -1,5 +1,5 @@
-#ifndef MYSH_COMMANDPARSER_H
-#define MYSH_COMMANDPARSER_H
+#ifndef MYSH_COMMAND_PARSER_H
+#define MYSH_COMMAND_PARSER_H
 
 #include <stdbool.h>
 
@@ -13,4 +13,4 @@ typedef struct CommandParser {
 CommandParser* CommandParser_create();
 void CommandParser_destroy(CommandParser* this);
 
-#endif //MYSH_COMMANDPARSER_H
+#endif //MYSH_COMMAND_PARSER_H

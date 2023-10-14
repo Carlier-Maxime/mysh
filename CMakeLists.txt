@@ -7,4 +7,6 @@ add_executable(mysh src/main.c
         src/Error.h
         src/Error.c
         src/CommandParser.h
-        src/CommandParser.c)
+        src/CommandParser.c
+        src/Command.h
+        src/Command.c)

@@ -8,7 +8,8 @@ unsigned int line;
 const char* errorMsg[] = {
         "Success",
         "Allocation memory failed",
-        "Null Pointer error"
+        "Null Pointer error",
+        "No Argument provided"
 };
 
 void Error_SetError_(ErrorStatus newStatus, const char* newFile, unsigned int newLine) {

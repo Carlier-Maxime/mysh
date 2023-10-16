@@ -68,7 +68,10 @@ Command* build(CommandFactory* this) {
         Error_SetError(ERROR_NULL_POINTER);
         return NULL;
     }
-    if (pv->pos<1) return NULL;
+    if (pv->pos<1) {
+        Error_SetError(ERROR_NO_ARGUMENT);
+        return NULL;
+    }
     if (!pv->resizeIfFull(this)) return NULL;
     pv->words[pv->pos]=NULL;
     Command* command = Command_create(pv->words[0], (const char **) (pv->words + 1));

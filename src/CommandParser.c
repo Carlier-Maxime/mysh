@@ -5,9 +5,11 @@
 #include "CommandFactory.h"
 
 #define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
+#define IS_SPECIAL_CHAR(c) ((c)=='\\' || (c)=='\n')
 
 typedef struct private_CommandParser {
     unsigned int size, pos;
+    bool backslash;
     char *chars;
     CommandFactory* factory;
     bool (*executeCommandQueue)(CommandParser* this);
@@ -39,6 +41,7 @@ private_CommandParser* privateCommandParser_create() {
     if (!this) return NULL;
     this->size=16;
     this->pos=0;
+    this->backslash=false;
     this->executeCommandQueue=executeCommandQueue;
     if (!(this->chars = malloc(sizeof(char)*this->size))) goto cleanup;
     if (!(this->factory=CommandFactory_create())) goto cleanup;
@@ -66,14 +69,16 @@ bool consumeChar(struct CommandParser* this, char c) {
         pv->chars=tmp;
     }
     bool isWhiteSpace = IS_WHITE_SPACE(c);
-    if ((pv->pos && pv->chars[pv->pos-1]) || !isWhiteSpace) {
+    if ((!IS_SPECIAL_CHAR(c) || pv->backslash || c=='\n') && ((pv->pos && pv->chars[pv->pos-1]) || !isWhiteSpace)) {
         pv->chars[pv->pos++]=(char)(isWhiteSpace ? '\0' : c);
         if (isWhiteSpace) {
             if (!pv->factory->addArgument(pv->factory, pv->chars)) return false;
             pv->pos=0;
         }
     }
-    if (c=='\n') pv->executeCommandQueue(this);
+    if (!pv->backslash && c=='\n') pv->executeCommandQueue(this);
+    if (pv->backslash) pv->backslash=false;
+    else if (c=='\\') pv->backslash=true;
     Error_SetError(ERROR_NONE);
     return true;
 }

@@ -13,6 +13,7 @@ typedef struct private_CommandParser {
     char *chars;
     CommandFactory* factory;
     bool (*executeCommandQueue)(CommandParser* this);
+    bool (*resizeIfFull)(CommandParser* this);
 } private_CommandParser;
 
 bool executeCommandQueue(CommandParser* this) {
@@ -24,6 +25,25 @@ bool executeCommandQueue(CommandParser* this) {
     if (!command) return false;
     command->execute(command);
     pv->pos=0;
+    Error_SetError(ERROR_NONE);
+    return true;
+}
+
+bool resizeIfFull(CommandParser* this) {
+    if (!this || !pv || !pv->chars) {
+        Error_SetError(ERROR_NULL_POINTER);
+        return false;
+    }
+    if (pv->pos==pv->size) {
+        char* tmp;
+        tmp=realloc(pv->chars, pv->size<<=1);
+        if (!tmp) {
+            Error_SetError(ERROR_MEMORY_ALLOCATION);
+            pv->size>>=1;
+            return false;
+        }
+        pv->chars=tmp;
+    }
     Error_SetError(ERROR_NONE);
     return true;
 }
@@ -43,6 +63,7 @@ private_CommandParser* privateCommandParser_create() {
     this->pos=0;
     this->backslash=false;
     this->executeCommandQueue=executeCommandQueue;
+    this->resizeIfFull=resizeIfFull;
     if (!(this->chars = malloc(sizeof(char)*this->size))) goto cleanup;
     if (!(this->factory=CommandFactory_create())) goto cleanup;
     Error_SetError(ERROR_NONE);
@@ -58,16 +79,7 @@ bool consumeChar(struct CommandParser* this, char c) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
     }
-    if (pv->pos==pv->size) {
-        char* tmp;
-        tmp=realloc(pv->chars, pv->size<<=1);
-        if (!tmp) {
-            Error_SetError(ERROR_MEMORY_ALLOCATION);
-            pv->size>>=1;
-            return false;
-        }
-        pv->chars=tmp;
-    }
+    if (!pv->resizeIfFull(this)) return false;
     bool isWhiteSpace = IS_WHITE_SPACE(c);
     if ((!IS_SPECIAL_CHAR(c) || pv->backslash || c=='\n') && ((pv->pos && pv->chars[pv->pos-1]) || !isWhiteSpace)) {
         pv->chars[pv->pos++]=(char)(isWhiteSpace ? '\0' : c);

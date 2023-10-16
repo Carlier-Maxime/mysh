@@ -8,10 +8,8 @@ struct private_CommandFactory;
 
 typedef struct CommandFactory {
     struct private_CommandFactory *private;
-    struct CommandFactory* (*create)(struct CommandFactory* this, const char* name);
     struct CommandFactory* (*addArgument)(struct CommandFactory* this, const char* arg);
     Command* (*build)(struct CommandFactory* this);
-    bool (*isMaking)(struct CommandFactory* this);
 } CommandFactory;
 
 CommandFactory *CommandFactory_create();

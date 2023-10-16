@@ -7,7 +7,6 @@
 typedef struct private_CommandFactory {
     unsigned int size, pos;
     char **words;
-    bool isMaking;
     bool (*resizeIfFull)(CommandFactory *this);
 } private_CommandFactory;
 
@@ -42,7 +41,6 @@ private_CommandFactory *privateCommandFactory_create() {
     this->size=8;
     this->pos=0;
     this->resizeIfFull=resizeIfFull;
-    this->isMaking=false;
     if (!(this->words=malloc(sizeof(char*)*this->size))) goto cleanup;
     Error_SetError(ERROR_NONE);
     return this;
@@ -51,23 +49,11 @@ cleanup:
     return NULL;
 }
 
-CommandFactory* create(CommandFactory* this, const char* name) {
-    if (!this || !pv) {
-        Error_SetError(ERROR_NULL_POINTER);
-        return NULL;
-    }
-    if (pv->isMaking) return NULL;
-    pv->isMaking=true;
-    this->addArgument(this,name);
-    return this;
-}
-
 CommandFactory* addArgument(CommandFactory* this, const char* arg) {
     if (!this || !pv || !pv->words) {
         Error_SetError(ERROR_NULL_POINTER);
         return NULL;
     }
-    if (!pv->isMaking) return NULL;
     if (!pv->resizeIfFull(this)) return NULL;
     if (!(pv->words[pv->pos]=strdup(arg))) {
         Error_SetError(ERROR_MEMORY_ALLOCATION);
@@ -77,25 +63,16 @@ CommandFactory* addArgument(CommandFactory* this, const char* arg) {
     return this;
 }
 
-bool isMaking(CommandFactory *this) {
-    if (!this || !pv) {
-        Error_SetError(ERROR_NULL_POINTER);
-        return false;
-    }
-    return pv->isMaking;
-}
-
 Command* build(CommandFactory* this) {
     if (!this || !pv || !pv->words) {
         Error_SetError(ERROR_NULL_POINTER);
         return NULL;
     }
-    if (!pv->isMaking || pv->pos<1) return NULL;
+    if (pv->pos<1) return NULL;
     if (!pv->resizeIfFull(this)) return NULL;
     pv->words[pv->pos]=NULL;
     Command* command = Command_create(pv->words[0], (const char **) (pv->words + 1));
     pv->pos=0;
-    pv->isMaking=false;
     return command;
 }
 
@@ -104,10 +81,8 @@ CommandFactory *CommandFactory_create() {
     CommandFactory *this = malloc(sizeof(CommandFactory));
     if (!this) return NULL;
     if (!(pv=privateCommandFactory_create())) goto cleanup;
-    this->create=create;
     this->addArgument=addArgument;
     this->build=build;
-    this->isMaking=isMaking;
     Error_SetError(ERROR_NONE);
     return this;
 cleanup:

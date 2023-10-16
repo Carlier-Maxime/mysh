@@ -69,10 +69,7 @@ bool consumeChar(struct CommandParser* this, char c) {
     if ((pv->pos && pv->chars[pv->pos-1]) || !isWhiteSpace) {
         pv->chars[pv->pos++]=(char)(isWhiteSpace ? '\0' : c);
         if (isWhiteSpace) {
-            if (pv->factory->isMaking(pv->factory)) {
-                if (!pv->factory->addArgument(pv->factory, pv->chars)) return false;
-            }
-            else if(!pv->factory->create(pv->factory, pv->chars)) return false;
+            if (!pv->factory->addArgument(pv->factory, pv->chars)) return false;
             pv->pos=0;
         }
     }

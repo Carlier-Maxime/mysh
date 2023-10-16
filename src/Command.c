@@ -60,9 +60,10 @@ bool execute(Command* this) {
         } else printf("\nprocess [%d] anormal finish", pid);
         printf("\n~> ");
     } else {
-        printf("%s", pv->name);
-        for (size_t i=0; pv->args[i]; i++) printf(" %s", pv->args[i]);
-        exit(0);
+        execv(pv->name, pv->args);
+        execvp(pv->name, pv->args);
+        perror("exec failed");
+        exit(1);
     }
     Error_SetError(ERROR_NONE);
     return true;

@@ -1,5 +1,9 @@
 #include <malloc.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
 #include "Command.h"
 #include "Error.h"
 #include "macro.h"
@@ -43,9 +47,23 @@ bool execute(Command* this) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
     }
-    printf("%s", pv->name);
-    for (size_t i=0; pv->args[i]; i++) printf(" %s", pv->args[i]);
-    printf("\n~> ");
+    pid_t pid=fork();
+    if (pid==-1) {
+        Error_SetError(ERROR_FORK);
+        return false;
+    }
+    if (pid) {
+        int status;
+        waitpid(pid, &status, 0);
+        if (WIFEXITED(status)) {
+            printf("\nprocess [%d] finish with exit code : %d", pid, WEXITSTATUS(status));
+        } else printf("\nprocess [%d] anormal finish", pid);
+        printf("\n~> ");
+    } else {
+        printf("%s", pv->name);
+        for (size_t i=0; pv->args[i]; i++) printf(" %s", pv->args[i]);
+        exit(0);
+    }
     Error_SetError(ERROR_NONE);
     return true;
 }

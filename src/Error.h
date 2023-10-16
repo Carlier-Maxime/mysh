@@ -7,7 +7,8 @@ typedef enum {
     ERROR_NONE=0,
     ERROR_MEMORY_ALLOCATION=1,
     ERROR_NULL_POINTER=2,
-    ERROR_NO_ARGUMENT=3
+    ERROR_NO_ARGUMENT=3,
+    ERROR_FORK=4
 } ErrorStatus;
 
 #ifdef DEBUG

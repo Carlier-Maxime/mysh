@@ -26,3 +26,27 @@
 - [ ] Internal command 'mybg' : pass job stopped to background
 - [ ] Support variable environment with internal command 'setenv' and 'unsetenv' (use '$var' for access to variable 'var')
 - [ ] Support variable local with internal command 'set' and 'unset' (use '$var' for access to variable 'var')
+
+## Installation
+
+### requirements
+
+the commands given for install requirements, work in debian (Ubuntu)  
+
+before install requirements execute the following commands for update package :
+```shell
+sudo apt update
+sudo apt upgrade
+```
+
+- git for git clone repositories : ```sudo apt install git```  
+- gcc compiler for compile : ```sudo apt install gcc```  
+- make for run Makefile : ```sudo apt install make```  
+
+### commands for install
+
+```shell
+git clone https://gitlab.univ-artois.fr/maxime_carlier/mysh
+cd mysh
+make
+```

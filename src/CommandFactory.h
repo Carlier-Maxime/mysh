@@ -10,6 +10,7 @@ typedef struct CommandFactory {
     struct private_CommandFactory *private;
     struct CommandFactory* (*addArgument)(struct CommandFactory* this, const char* arg);
     Command* (*build)(struct CommandFactory* this);
+    int (*getNbArgs)(struct CommandFactory* this);
 } CommandFactory;
 
 CommandFactory *CommandFactory_create();

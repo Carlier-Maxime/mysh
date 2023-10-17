@@ -79,6 +79,14 @@ Command* CommandFactory_build(CommandFactory* this) {
     return command;
 }
 
+int CommandFactory_getNbArgs(CommandFactory* this) {
+    if (!this || !pv) {
+        Error_SetError(ERROR_NULL_POINTER);
+        return -1;
+    }
+    return pv->pos;
+}
+
 CommandFactory *CommandFactory_create() {
     Error_SetError(ERROR_MEMORY_ALLOCATION);
     CommandFactory *this = malloc(sizeof(CommandFactory));
@@ -86,6 +94,7 @@ CommandFactory *CommandFactory_create() {
     if (!(pv=privateCommandFactory_create())) goto cleanup;
     this->addArgument=CommandFactory_addArgument;
     this->build=CommandFactory_build;
+    this->getNbArgs=CommandFactory_getNbArgs;
     Error_SetError(ERROR_NONE);
     return this;
 cleanup:

@@ -64,11 +64,7 @@ Token CommandParser_processToken(CommandParser* this, char c) {
         return TOKEN_ERROR;
     }
     Error_SetError(ERROR_NONE);
-    if (pv->backslash) {
-        pv->backslash=false;
-        return c=='\n' ? TOKEN_NONE : TOKEN_CHAR;
-    }
-    if (c=='\\') return TOKEN_ESCAPE;
+    if (c=='\\' || pv->backslash) return TOKEN_ESCAPE;
     if (c=='\n') return TOKEN_EXECUTE;
     if (IS_WHITE_SPACE(c)) return pv->pos ? TOKEN_STR : TOKEN_NONE;
     return TOKEN_CHAR;
@@ -120,7 +116,11 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
             pv->pos=0;
             break;
         case TOKEN_ESCAPE:
-            pv->backslash=true;
+            if (pv->backslash) {
+                pv->backslash=false;
+                if (c=='\n') printf("> ");
+                else pv->chars[pv->pos++]=c;
+            } else pv->backslash=true;
             break;
         case TOKEN_EXECUTE:
             if (pv->pos) {

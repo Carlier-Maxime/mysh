@@ -4,9 +4,9 @@
 
 ## Functionality
 
-- [ ] Run commands from a command prompt
+- [X] Run commands from a command prompt
 - [ ] Show current directory
-- [ ] Wait for a command to finish executing before re-displaying the command prompt
+- [X] Wait for a command to finish executing before re-displaying the command prompt
 - [ ] Unconditional sequence of commands with ';'
 - [ ] Conditional sequence of command with '&&' and '||'
 - [ ] Support wildcards : '*', '?', '[ens]'

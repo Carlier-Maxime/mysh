@@ -16,7 +16,7 @@ void privateCommandFactory_destroy(private_CommandFactory *this) {
     free(this);
 }
 
-bool resizeIfFull(CommandFactory* this) {
+bool CommandFactory_resizeIfFull(CommandFactory* this) {
     if (!this || !pv || !pv->words) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
@@ -40,7 +40,7 @@ private_CommandFactory *privateCommandFactory_create() {
     if (!this) return NULL;
     this->size=8;
     this->pos=0;
-    this->resizeIfFull=resizeIfFull;
+    this->resizeIfFull=CommandFactory_resizeIfFull;
     if (!(this->words=malloc(sizeof(char*)*this->size))) goto cleanup;
     Error_SetError(ERROR_NONE);
     return this;

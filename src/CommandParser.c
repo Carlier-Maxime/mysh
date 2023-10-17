@@ -29,7 +29,7 @@ bool executeCommandQueue(CommandParser* this) {
     return true;
 }
 
-bool resizeIfFull(CommandParser* this) {
+bool CommandParser_resizeIfFull(CommandParser* this) {
     if (!this || !pv || !pv->chars) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
@@ -63,7 +63,7 @@ private_CommandParser* privateCommandParser_create() {
     this->pos=0;
     this->backslash=false;
     this->executeCommandQueue=executeCommandQueue;
-    this->resizeIfFull=resizeIfFull;
+    this->resizeIfFull=CommandParser_resizeIfFull;
     if (!(this->chars = malloc(sizeof(char)*this->size))) goto cleanup;
     if (!(this->factory=CommandFactory_create())) goto cleanup;
     Error_SetError(ERROR_NONE);

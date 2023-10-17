@@ -49,7 +49,7 @@ cleanup:
     return NULL;
 }
 
-CommandFactory* addArgument(CommandFactory* this, const char* arg) {
+CommandFactory* CommandFactory_addArgument(CommandFactory* this, const char* arg) {
     if (!this || !pv || !pv->words) {
         Error_SetError(ERROR_NULL_POINTER);
         return NULL;
@@ -63,7 +63,7 @@ CommandFactory* addArgument(CommandFactory* this, const char* arg) {
     return this;
 }
 
-Command* build(CommandFactory* this) {
+Command* CommandFactory_build(CommandFactory* this) {
     if (!this || !pv || !pv->words) {
         Error_SetError(ERROR_NULL_POINTER);
         return NULL;
@@ -84,8 +84,8 @@ CommandFactory *CommandFactory_create() {
     CommandFactory *this = malloc(sizeof(CommandFactory));
     if (!this) return NULL;
     if (!(pv=privateCommandFactory_create())) goto cleanup;
-    this->addArgument=addArgument;
-    this->build=build;
+    this->addArgument=CommandFactory_addArgument;
+    this->build=CommandFactory_build;
     Error_SetError(ERROR_NONE);
     return this;
 cleanup:

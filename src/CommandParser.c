@@ -16,7 +16,7 @@ typedef struct private_CommandParser {
     bool (*resizeIfFull)(CommandParser* this);
 } private_CommandParser;
 
-bool executeCommandQueue(CommandParser* this) {
+bool CommandParser_executeCommandQueue(CommandParser* this) {
     if (!this) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
@@ -62,7 +62,7 @@ private_CommandParser* privateCommandParser_create() {
     this->size=16;
     this->pos=0;
     this->backslash=false;
-    this->executeCommandQueue=executeCommandQueue;
+    this->executeCommandQueue=CommandParser_executeCommandQueue;
     this->resizeIfFull=CommandParser_resizeIfFull;
     if (!(this->chars = malloc(sizeof(char)*this->size))) goto cleanup;
     if (!(this->factory=CommandFactory_create())) goto cleanup;
@@ -73,7 +73,7 @@ cleanup:
     return NULL;
 }
 
-bool consumeChar(struct CommandParser* this, char c) {
+bool CommandParser_consumeChar(struct CommandParser* this, char c) {
     if (c==EOF) return false;
     if (!this || !pv || !pv->chars) {
         Error_SetError(ERROR_NULL_POINTER);
@@ -100,7 +100,7 @@ CommandParser* CommandParser_create() {
     CommandParser *this = malloc(sizeof(CommandParser));
     if (!this) return NULL;
     if (!(pv=privateCommandParser_create())) goto cleanup;
-    this->consumeChar=consumeChar;
+    this->consumeChar=CommandParser_consumeChar;
     Error_SetError(ERROR_NONE);
     return this;
 cleanup:

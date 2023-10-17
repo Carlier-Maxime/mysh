@@ -43,7 +43,7 @@ cleanup:
     return NULL;
 }
 
-bool execute(Command* this) {
+bool Command_execute(Command* this) {
     if (!this || !pv || !pv->name || !pv->args) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
@@ -75,7 +75,7 @@ Command* Command_create(const char* name, const char** args) {
     Command* this = malloc(sizeof(Command));
     if (!this) return NULL;
     if (!(pv = privateCommand_create(name, args))) goto cleanup;
-    this->execute=execute;
+    this->execute=Command_execute;
     Error_SetError(ERROR_NONE);
     return this;
 cleanup:

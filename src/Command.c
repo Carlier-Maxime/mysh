@@ -57,7 +57,7 @@ bool Command_execute(Command* this) {
         waitpid(pid, &status, 0);
         if (WIFEXITED(status)) {
             printf("\nprocess [%d] finish with exit code : %d\n", pid, WEXITSTATUS(status));
-        } else printf("\nprocess [%d] anormal finish\n", pid);
+        } else printf("\nprocess [%d] abnormally finished\n", pid);
     } else {
         execv(pv->name, pv->args);
         execvp(pv->name, pv->args);

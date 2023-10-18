@@ -56,12 +56,13 @@ bool Command_execute(Command* this) {
         int status;
         waitpid(pid, &status, 0);
         if (WIFEXITED(status)) {
-            printf("\nprocess [%d] finish with exit code : %d\n", pid, WEXITSTATUS(status));
-        } else printf("\nprocess [%d] abnormally finished\n", pid);
+            int exit_code = WEXITSTATUS(status);
+            fprintf(exit_code ? stderr : stdout,"%s\nprocess [%d] finish with exit code : %d\n", exit_code ? RED_BEGIN : GREEN_BEGIN, pid, exit_code);
+        } else fprintf(stderr,RED("\nprocess [%d] abnormally finished\n"), pid);
     } else {
         execv(pv->name, pv->args);
         execvp(pv->name, pv->args);
-        perror("exec failed");
+        perror(RED("exec failed"));
         exit(1);
     }
     Error_SetError(ERROR_NONE);

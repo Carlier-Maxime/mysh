@@ -129,7 +129,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
             int nbArgs=pv->factory->getNbArgs(pv->factory);
             if (nbArgs==-1) return false;
             if (nbArgs && !pv->executeCommandQueue(this)) return false;
-            printf("~> ");
+            printf(BLUE("~")"> ");
             pv->pos=0;
             break;
         default:

@@ -5,7 +5,6 @@
 #include "CommandFactory.h"
 
 #define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
-#define IS_SPECIAL_CHAR(c) ((c)=='\\' || (c)=='\n')
 
 typedef enum {
     TOKEN_ERROR,

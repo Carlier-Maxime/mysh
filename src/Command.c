@@ -1,7 +1,6 @@
 #include <malloc.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
 #include "Command.h"

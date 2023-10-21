@@ -32,7 +32,7 @@ bool CommandParser_executeCommandQueue(CommandParser* this) {
     }
     Command *command = pv->factory->build(pv->factory);
     if (!command) return false;
-    command->execute(command);
+    if (!command->execute(command)) return false;
     pv->pos=0;
     Error_SetError(ERROR_NONE);
     return true;

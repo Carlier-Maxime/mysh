@@ -47,6 +47,10 @@ bool Command_execute(Command* this) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
     }
+    if (strcmp(pv->name, "exit")==0) {
+        Error_SetError(ERROR_NONE);
+        return false;
+    }
     pid_t pid=fork();
     if (pid==-1) {
         Error_SetError(ERROR_FORK);

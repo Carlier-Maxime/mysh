@@ -11,7 +11,7 @@
 - [ ] Conditional sequence of command with '&&' and '||'
 - [ ] Support wildcards : '*', '?', '[ens]'
 - [ ] Internal command 'cd' for change directory
-- [ ] Internal command 'exit' for quit mysh
+- [X] Internal command 'exit' for quit mysh
 - [ ] Ctrl-C for exit by killing all background processes (with confirmation request)
 - [ ] Ctrl-C for kill current process (not exit mysh)
 - [ ] Internal command 'status' (show status for last process executed in foreground)

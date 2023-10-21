@@ -3,6 +3,7 @@
 #include "Error.h"
 #include "macro.h"
 #include "CommandFactory.h"
+#include "Environment.h"
 
 #define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
 
@@ -129,7 +130,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
             int nbArgs=pv->factory->getNbArgs(pv->factory);
             if (nbArgs==-1) return false;
             if (nbArgs && !pv->executeCommandQueue(this)) return false;
-            printf(BLUE("~")"> ");
+            printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
             pv->pos=0;
             break;
         default:

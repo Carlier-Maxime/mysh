@@ -10,7 +10,8 @@ const char* errorMsg[] = {
         "Allocation memory failed",
         "Null Pointer error",
         "No Argument provided",
-        "Fork failed"
+        "Fork failed",
+        "A manipulation environment error"
 };
 
 void Error_SetError_(ErrorStatus newStatus, const char* newFile, unsigned int newLine) {

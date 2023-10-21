@@ -15,4 +15,6 @@ add_executable(mysh src/main.c
         src/Command.c
         src/macro.h
         src/CommandFactory.h
-        src/CommandFactory.c)
+        src/CommandFactory.c
+        src/Environment.h
+        src/Environment.c)

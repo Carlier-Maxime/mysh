@@ -5,7 +5,7 @@
 ## Functionality
 
 - [X] Run commands from a command prompt
-- [ ] Show current directory
+- [X] Show current directory
 - [X] Wait for a command to finish executing before re-displaying the command prompt
 - [ ] Unconditional sequence of commands with ';'
 - [ ] Conditional sequence of command with '&&' and '||'

@@ -26,7 +26,7 @@ bool Command_execute(Command* this) {
         waitpid(pid, &status, 0);
         if (WIFEXITED(status)) {
             int exit_code = WEXITSTATUS(status);
-            fprintf(exit_code ? stderr : stdout,"%s\nprocess [%d] finish with exit code : %d\n", exit_code ? RED_BEGIN : GREEN_BEGIN, pid, exit_code);
+            fprintf(exit_code ? stderr : stdout,"%s\nprocess [%d] finish with exit code : %d%s\n", exit_code ? RED_BEGIN : GREEN_BEGIN, pid, exit_code, COLOR_RESET);
         } else fprintf(stderr,RED("\nprocess [%d] abnormally finished\n"), pid);
     } else {
         execv(this->name, this->args);

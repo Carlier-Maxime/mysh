@@ -16,6 +16,6 @@ exit:
     Environment_free();
     int exit_code = Error_GetErrorStatus();
     if (exit_code) Error_PrintErrorMsg("A Error is occurred");
-    fprintf(exit_code ? stderr : stdout, "%s\nexit mysh with status : %d\n", exit_code ? RED_BEGIN : GREEN_BEGIN, exit_code);
+    fprintf(exit_code ? stderr : stdout, "%s\nexit mysh with status : %d%s\n", exit_code ? RED_BEGIN : GREEN_BEGIN, exit_code, COLOR_RESET);
     return Error_GetErrorStatus();
 }

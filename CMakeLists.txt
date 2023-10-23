@@ -17,4 +17,7 @@ add_executable(mysh src/main.c
         src/CommandFactory.h
         src/CommandFactory.c
         src/Environment.h
-        src/Environment.c)
+        src/Environment.c
+        src/TokenMapper.h
+        src/TokenMapper.c
+)

@@ -4,16 +4,15 @@
 #include <stdbool.h>
 #include "Command.h"
 
-struct private_CommandFactory;
-
 typedef struct CommandFactory {
-    struct private_CommandFactory *private;
-    struct CommandFactory* (*addArgument)(struct CommandFactory* this, const char* arg);
-    Command* (*build)(struct CommandFactory* this);
-    int (*getNbArgs)(struct CommandFactory* this);
+    unsigned int size, pos;
+    char **words;
 } CommandFactory;
 
 CommandFactory *CommandFactory_create();
 void CommandFactory_destroy(CommandFactory *this);
+CommandFactory* CommandFactory_addArgument(CommandFactory* this, const char* arg);
+Command* CommandFactory_build(CommandFactory* this);
+int CommandFactory_getNbArgs(CommandFactory* this);
 
 #endif //MYSH_COMMAND_FACTORY_H

@@ -7,7 +7,6 @@
 
 typedef struct CommandParser {
     unsigned int size, pos;
-    bool backslash;
     char *chars;
     CommandFactory* factory;
     TokenMapper* tokenMapper;

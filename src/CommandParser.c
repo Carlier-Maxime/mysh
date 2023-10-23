@@ -43,7 +43,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
         return false;
     }
     if (!CommandParser_resizeIfFull(this)) return false;
-    Token token = TokenMapper_processChar(this->tokenMapper, c, this->backslash, this->pos);
+    Token token = TokenMapper_processChar(this->tokenMapper, c);
     switch (token) {
         case TOKEN_ERROR:
             return false;
@@ -51,16 +51,10 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
             this->chars[this->pos++]=c;
             break;
         case TOKEN_STR:
+            if (!this->pos) break;
             this->chars[this->pos++]='\0';
             if (!CommandFactory_addArgument(this->factory, this->chars)) return false;
             this->pos=0;
-            break;
-        case TOKEN_ESCAPE:
-            if (this->backslash) {
-                this->backslash=false;
-                if (c=='\n') printf("> ");
-                else this->chars[this->pos++]=c;
-            } else this->backslash=true;
             break;
         case TOKEN_EXECUTE:
             if (this->pos) {
@@ -72,6 +66,9 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
             if (nbArgs && !CommandParser_executeCommandQueue(this)) return false;
             printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
             this->pos=0;
+            break;
+        case TOKEN_NEW_LINE:
+            printf("> ");
             break;
         default:
             break;
@@ -86,7 +83,6 @@ CommandParser* CommandParser_create() {
     if (!this) return NULL;
     this->size=16;
     this->pos=0;
-    this->backslash=false;
     if (!(this->chars = malloc(sizeof(char)*this->size))) goto cleanup;
     if (!(this->factory=CommandFactory_create())) goto cleanup;
     if (!(this->tokenMapper=TokenMapper_create())) goto cleanup;

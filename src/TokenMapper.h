@@ -9,7 +9,7 @@ typedef enum {
     TOKEN_CHAR,
     TOKEN_STR,
     TOKEN_EXECUTE,
-    TOKEN_ESCAPE
+    TOKEN_NEW_LINE
 } Token;
 
 typedef struct TokenMapper {
@@ -19,6 +19,6 @@ typedef struct TokenMapper {
 
 TokenMapper* TokenMapper_create();
 void TokenMapper_destroy(TokenMapper* this);
-Token TokenMapper_processChar(TokenMapper* this, char c, bool backslash, unsigned int pos);
+Token TokenMapper_processChar(TokenMapper* this, char c);
 
 #endif //MYSH_TOKEN_MAPPER_H

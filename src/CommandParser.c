@@ -4,17 +4,6 @@
 #include "macro.h"
 #include "Environment.h"
 
-#define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
-
-typedef enum {
-    TOKEN_ERROR,
-    TOKEN_NONE,
-    TOKEN_CHAR,
-    TOKEN_STR,
-    TOKEN_EXECUTE,
-    TOKEN_ESCAPE
-} Token;
-
 bool CommandParser_executeCommandQueue(CommandParser* this) {
     if (!this) {
         Error_SetError(ERROR_NULL_POINTER);
@@ -47,18 +36,6 @@ bool CommandParser_resizeIfFull(CommandParser* this) {
     return true;
 }
 
-Token CommandParser_processToken(CommandParser* this, char c) {
-    if (!this) {
-        Error_SetError(ERROR_NULL_POINTER);
-        return TOKEN_ERROR;
-    }
-    Error_SetError(ERROR_NONE);
-    if (c=='\\' || this->backslash) return TOKEN_ESCAPE;
-    if (c=='\n') return TOKEN_EXECUTE;
-    if (IS_WHITE_SPACE(c)) return this->pos ? TOKEN_STR : TOKEN_NONE;
-    return TOKEN_CHAR;
-}
-
 bool CommandParser_consumeChar(struct CommandParser* this, char c) {
     if (c==EOF) return false;
     if (!this || !this->chars) {
@@ -66,7 +43,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
         return false;
     }
     if (!CommandParser_resizeIfFull(this)) return false;
-    Token token = CommandParser_processToken(this, c);
+    Token token = TokenMapper_processChar(this->tokenMapper, c, this->backslash, this->pos);
     switch (token) {
         case TOKEN_ERROR:
             return false;
@@ -112,6 +89,7 @@ CommandParser* CommandParser_create() {
     this->backslash=false;
     if (!(this->chars = malloc(sizeof(char)*this->size))) goto cleanup;
     if (!(this->factory=CommandFactory_create())) goto cleanup;
+    if (!(this->tokenMapper=TokenMapper_create())) goto cleanup;
     Error_SetError(ERROR_NONE);
     return this;
 cleanup:
@@ -121,6 +99,7 @@ cleanup:
 
 void CommandParser_destroy(CommandParser* this) {
     if (!this) return;
+    TokenMapper_destroy(this->tokenMapper);
     CommandFactory_destroy(this->factory);
     free(this->chars);
     free(this);

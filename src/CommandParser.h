@@ -3,12 +3,14 @@
 
 #include <stdbool.h>
 #include "CommandFactory.h"
+#include "TokenMapper.h"
 
 typedef struct CommandParser {
     unsigned int size, pos;
     bool backslash;
     char *chars;
     CommandFactory* factory;
+    TokenMapper* tokenMapper;
 } CommandParser;
 
 CommandParser* CommandParser_create();

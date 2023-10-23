@@ -17,6 +17,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.d: $(SRC_DIR)/%.c
+	@set -e; rm -f $@; \
 	$(CC) -MM $< | sed 's/\($*\)\.o[ :]*/$(OBJ_DIR)\/\1.o : /g' > $@
 
 clean :

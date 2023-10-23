@@ -27,6 +27,11 @@ Token TokenMapper_processChar(TokenMapper* this, char c) {
     else if (c=='\\') token=TOKEN_NONE;
     else if (c=='\n') token=TOKEN_EXECUTE;
     else if (IS_WHITE_SPACE(c)) return TOKEN_STR;
+    else if(c=='&') token = this->last_token==TOKEN_BACKGROUND ? TOKEN_AND : TOKEN_BACKGROUND;
+    else if(c=='|') token = this->last_token==TOKEN_PIPE ? TOKEN_OR : TOKEN_PIPE;
+    else if(c=='>') token = this->last_token==TOKEN_REDIRECT_OUTPUT ? TOKEN_REDIRECT_OUTPUT_APPEND : TOKEN_REDIRECT_OUTPUT;
+    else if(c=='<') token = TOKEN_REDIRECT_INPUT;
+    else if(c==';') token = TOKEN_SEMICOLON;
     else token=TOKEN_CHAR;
     this->last_char=c;
     this->last_token=token;

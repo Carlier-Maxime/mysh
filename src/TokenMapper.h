@@ -9,7 +9,15 @@ typedef enum {
     TOKEN_CHAR,
     TOKEN_STR,
     TOKEN_EXECUTE,
-    TOKEN_NEW_LINE
+    TOKEN_NEW_LINE,
+    TOKEN_PIPE,
+    TOKEN_OR,
+    TOKEN_SEMICOLON,
+    TOKEN_BACKGROUND, // le &
+    TOKEN_AND,
+    TOKEN_REDIRECT_OUTPUT,
+    TOKEN_REDIRECT_OUTPUT_APPEND,
+    TOKEN_REDIRECT_INPUT,
 } Token;
 
 typedef struct TokenMapper {

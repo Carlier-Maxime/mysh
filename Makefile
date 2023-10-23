@@ -1,28 +1,27 @@
 CC = gcc
-CFLAGS = -Wall -pedantic
+LD = gcc
+CFLAGS = -Wall -Werror -pedantic
+LD_FLAGS =
 SRC_DIR = src
 OBJ_DIR = obj
-
-SRC = $(wildcard $(SRC_DIR)/*.c)
-
-OBJ = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
-
+HEADERS_FILES = $(wildcard $(SRC_DIR)/*.h)
+C_FILES = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_FILES))
+DEPS = $(OBJS:.o=.d)
 EXEC = mysh
 
-all : $(EXEC)
+$(EXEC) : $(OBJS)
+	$(LD) $^ $(LD_FLAGS) -o $@
 
-mysh : $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
-
-$(OBJ_DIR)/main.o : $(SRC_DIR)/main.c
-	@mkdir -p $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(SRC_DIR)/%.h
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJ_DIR)/%.d: $(SRC_DIR)/%.c
+	$(CC) -MM $< | sed 's/\($*\)\.o[ :]*/$(OBJ_DIR)\/\1.o : /g' > $@
 
 clean :
-	rm -f  $(OBJ) $(EXEC)
+	rm -f  $(OBJS) $(DEPS) $(EXEC)
 
 .PHONY: clean all
+
+-include $(DEPS)

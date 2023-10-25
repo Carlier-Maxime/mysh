@@ -20,4 +20,7 @@ add_executable(mysh src/main.c
         src/Environment.c
         src/TokenMapper.h
         src/TokenMapper.c
+        src/test/test.c
 )
+
+add_executable(test src/test/test.c)

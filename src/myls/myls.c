@@ -12,18 +12,21 @@
 #include <grp.h>
 #include <errno.h>
 
-#include "macro.h"
+#include "../macro.h"
+#include "../Error.h"
 #define is_not_point_directory(i) (strcmp(i,".") && strcmp(i,".."))
 #define exit_error(condition, message) if(condition){perror(message);exit(1);}
 #define exit_error_malloc(pointer) exit_error(pointer==NULL, "Erreur malloc:")
 
 int main(int argc, char* argv[]){
 		exec_my_ls(argc-1,argv+1);
+		return 0;
 }
 
 int exec_my_ls(int argc, char* argv[]){
 	int masque_option;
-	char** args = treat_arg(argc, argv, &masque_option);
+
+	char** args = treat_arg(argc, argv, &masque_option); //a désalouer à la fin
 	if(args[0]==NULL){
 		char* current_path= getcwd(NULL,0);
 		exit_error_malloc(current_path)
@@ -128,10 +131,7 @@ void explore_dir(char * dir_path, int masque_option){
 		exit_error_malloc(file)
 		
 		exit_error(stat(path,file)==-1, "Erreur stat: ")
-		if(
-			(!S_ISDIR(file->st_mode) || !(masque_option & 2) || !is_not_point_directory(directory->d_name))&&
-			(masque_option & 1 || directory->d_name[0]!='.')
-		){
+		if((masque_option & 1 || directory->d_name[0]!='.')){
 			if(file_size>=file_max_size){
 				file_max_size*=2;
 				file_tab=realloc(file_tab, sizeof(full_file)*file_max_size);
@@ -144,17 +144,17 @@ void explore_dir(char * dir_path, int masque_option){
 			(file_tab+file_size)->path=path;
 			(file_tab+file_size)->file=file;
 			file_size++;
-		}else if(masque_option & 2 && is_not_point_directory(directory->d_name) && (masque_option & 1 || directory->d_name[0]!='.')){
-			if(directory_size>=directory_max_size){
-				directory_max_size*=2;
-				directory_tab=realloc(directory_tab, sizeof(char*)*directory_max_size);
-				exit_error(directory_tab==NULL,"Erreur realloc")
-			}
-			*(directory_tab+directory_size)=path;
+			if(S_ISDIR(file->st_mode) && masque_option & 2 && is_not_point_directory(directory->d_name) && (masque_option & 1 || directory->d_name[0]!='.')){
+				if(directory_size>=directory_max_size){
+					directory_max_size*=2;
+					directory_tab=realloc(directory_tab, sizeof(char*)*directory_max_size);
+					exit_error(directory_tab==NULL,"Erreur realloc")
+				}
+				*(directory_tab+directory_size)=path;
 
-			directory_size++;
-			//("%d\n",directory_size );
-			free(file);
+				directory_size++;
+			
+			}
 		}else{
 			free(path);
 
@@ -168,25 +168,25 @@ void explore_dir(char * dir_path, int masque_option){
 	for(int i=0;i<file_size; i++){
 		
 		print_file((file_tab+i)->name,(file_tab+i)->file);
+
+	}
+
+
+	sort_dir_path_tab(directory_tab,directory_size);
+
+	for(int i=0;i<directory_size;i++){
+		printf("%s\n",*(directory_tab+i));
+		explore_dir(*(directory_tab+i),masque_option);
+	}
+	for(int i=0;i<file_size; i++){	
 		free((file_tab+i)->name);
 		free((file_tab+i)->path);
 		free((file_tab+i)->file);
 
 	}
 	free(file_tab);
-
-
-	sort_dir_path_tab(directory_tab,directory_size);
-
-	for(int i=0;i<directory_size;i++){
-
-		explore_dir(/**(dir_path_tab+i)*/ *(directory_tab+i),masque_option);
-		
-		free(*(directory_tab+i));
-	}
 	free(directory_tab);
 
-	//free(dir_path_tab);
 	closedir(dir);
 
 }
@@ -268,6 +268,7 @@ char* get_dir_name(char* path){
 	}
 	return res;
 }
+
 
 
 

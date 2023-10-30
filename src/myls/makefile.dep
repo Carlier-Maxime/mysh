@@ -1,2 +1,0 @@
-myls.o: myls.c myls.h myls_sorter.h macro.h
-myls_sorter.o: myls_sorter.c myls_sorter.h myls.h

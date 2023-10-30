@@ -3,46 +3,37 @@ LD = gcc
 CFLAGS = -Wall -Werror -pedantic
 LD_FLAGS =
 SRC_DIR = src
-TEST_SRC_DIR = $(SRC_DIR)/test
 OBJ_DIR = obj
-TEST_OBJ_DIR = $(OBJ_DIR)/test
-C_FILES = $(wildcard $(SRC_DIR)/*.c)
-TEST_C_FILES = $(wildcard $(TEST_SRC_DIR)/*.c)
-OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_FILES))
-TEST_OBJS = $(patsubst $(TEST_SRC_DIR)/%.c,$(TEST_OBJ_DIR)/%.o,$(TEST_C_FILES))
-ALL_OBJS = $(OBJS) $(TEST_OBJS)
-DEPS = $(ALL_OBJS:.o=.d)
+OBJS_GLOBAL = $(patsubst $(SRC_DIR)/utils/%.c,$(OBJ_DIR)/utils/%.o,$(wildcard $(SRC_DIR)/utils/*.c))
+EXE = mysh test
+OBJ_DIRS := $(addprefix $(OBJ_DIR)/, $(EXE) utils)
 
-all : $(OBJ_DIR) $(TEST_OBJ_DIR) mysh test
+all : $(OBJ_DIRS) $(EXE)
 
-$(OBJ_DIR):
-	@mkdir $@
+$(OBJ_DIRS):
+	@mkdir -p $@
 
-$(TEST_OBJ_DIR):
-	@mkdir $@
+define build_exe
+$(1) : $(OBJS_GLOBAL) $(patsubst $(SRC_DIR)/$(1)/%.c,$(OBJ_DIR)/$(1)/%.o,$(wildcard $(SRC_DIR)/$(1)/*.c))
+	$(LD) $$^ $(LD_FLAGS) -o $$@
+endef
 
-test : $(TEST_OBJS)
-	$(LD) $^ $(LD_FLAGS) -o $@
-
-mysh : $(OBJS)
-	$(LD) $^ $(LD_FLAGS) -o $@
+$(foreach exe, $(EXE), $(eval $(call build_exe,$(exe))))
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TEST_OBJ_DIR)/%.d: $(TEST_SRC_DIR)/%.c
-	@mkdir -p $(TEST_OBJ_DIR)
-	@set -e; rm -f $@; \
-	$(CC) -MM $< | sed 's/\($*\)\.o[ :]*/$(OBJ_DIR)\/\1.o : /g' > $@
-
-$(OBJ_DIR)/%.d: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	@set -e; rm -f $@; \
-	$(CC) -MM $< | sed 's/\($*\)\.o[ :]*/$(OBJ_DIR)\/\1.o : /g' > $@
-
 clean :
-	rm -f  $(TEST_OBJS) $(OBJS) $(DEPS) $(EXEC)
-	rmdir $(TEST_OBJ_DIR) $(OBJ_DIR)
+	rm -rf  $(OBJ_DIR) $(EXE)
+
+define build_dep
+$(OBJ_DIR)/$(1)/%.d: $(SRC_DIR)/$(1)/%.c $(OBJ_DIR)/$(1)
+	@$(CC) -MM $$< | sed 's/\($$*\)\.o[ :]*/$(OBJ_DIR)\/$(1)\/\1.o : /g' > $$@
+endef
+
+$(foreach exe, $(EXE) utils, $(eval $(call build_dep,$(exe))))
+
+DEPS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.d,$(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c))
 
 .PHONY: clean all
 

@@ -7,20 +7,19 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 add_executable(mysh src/mysh/main.c
-        src/Error.h
-        src/Error.c
+        src/utils/Error.h
+        src/utils/Error.c
         src/mysh/CommandParser.h
         src/mysh/CommandParser.c
         src/mysh/Command.h
         src/mysh/Command.c
-        src/macro.h
+        src/utils/macro.h
         src/mysh/CommandFactory.h
         src/mysh/CommandFactory.c
         src/mysh/Environment.h
         src/mysh/Environment.c
         src/mysh/TokenMapper.h
         src/mysh/TokenMapper.c
-        src/test/test.c
 )
 
 add_executable(test src/test/test.c)

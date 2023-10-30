@@ -4,8 +4,8 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include "Command.h"
-#include "Error.h"
-#include "macro.h"
+#include "../Error.h"
+#include "../macro.h"
 
 bool Command_execute(Command* this) {
     if (!this || !this->name || !this->args) {

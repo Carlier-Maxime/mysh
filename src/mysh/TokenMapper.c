@@ -1,7 +1,7 @@
 #include "TokenMapper.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "Error.h"
+#include "../Error.h"
 
 #define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
 

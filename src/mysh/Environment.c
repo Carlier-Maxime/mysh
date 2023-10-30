@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 #include "Environment.h"
-#include "Error.h"
+#include "../Error.h"
 
 char current_dir[PATH_MAX];
 

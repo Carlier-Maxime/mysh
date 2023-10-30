@@ -6,20 +6,20 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DDEBUG)
 endif()
 
-add_executable(mysh src/main.c
+add_executable(mysh src/mysh/main.c
         src/Error.h
         src/Error.c
-        src/CommandParser.h
-        src/CommandParser.c
-        src/Command.h
-        src/Command.c
+        src/mysh/CommandParser.h
+        src/mysh/CommandParser.c
+        src/mysh/Command.h
+        src/mysh/Command.c
         src/macro.h
-        src/CommandFactory.h
-        src/CommandFactory.c
-        src/Environment.h
-        src/Environment.c
-        src/TokenMapper.h
-        src/TokenMapper.c
+        src/mysh/CommandFactory.h
+        src/mysh/CommandFactory.c
+        src/mysh/Environment.h
+        src/mysh/Environment.c
+        src/mysh/TokenMapper.h
+        src/mysh/TokenMapper.c
         src/test/test.c
 )
 

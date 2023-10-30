@@ -1,8 +1,8 @@
 #include <malloc.h>
 #include <string.h>
 #include "CommandFactory.h"
-#include "Error.h"
-#include "macro.h"
+#include "../Error.h"
+#include "../macro.h"
 
 bool CommandFactory_resizeIfFull(CommandFactory* this) {
     if (!this || !this->words) {

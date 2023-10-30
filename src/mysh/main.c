@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "../Error.h"
+#include "../utils/Error.h"
 #include "CommandParser.h"
-#include "../macro.h"
+#include "../utils/macro.h"
 #include "Environment.h"
 
 int main()

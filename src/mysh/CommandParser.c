@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include "CommandParser.h"
-#include "Error.h"
-#include "macro.h"
+#include "../utils/Error.h"
+#include "../utils/macro.h"
 #include "Environment.h"
 
 bool CommandParser_executeCommandQueue(CommandParser* this) {

@@ -12,8 +12,8 @@
 #include <grp.h>
 #include <errno.h>
 
-#include "../macro.h"
-#include "../Error.h"
+#include "../utils/macro.h"
+#include "../utils/Error.h"
 #define is_not_point_directory(i) (strcmp(i,".") && strcmp(i,".."))
 #define exit_error(condition, message) if(condition){perror(message);exit(1);}
 #define exit_error_malloc(pointer) exit_error(pointer==NULL, "Erreur malloc:")
@@ -92,7 +92,7 @@ char** treat_arg(int argc, char* argv[], int* masque_option){
 						erreur=1;
 					}
 				}else{
-					printf("%s\n",argv[i]);
+					//printf("%s\n",argv[i]);
 					if(argv[i][0]=='/'){
 
 						dir_tab[cpt]=malloc(sizeof(char)*(strlen(argv[i])+1));
@@ -193,7 +193,7 @@ int explore_dir(char * dir_path, int masque_option){
 				Error_SetError(ERROR_MEMORY_ALLOCATION);
 				return_value=1;
 			}else{
-				printf("\n%s:\n",get_dir_name(dir_path));
+				printf("%s:\n",get_dir_name(dir_path));
 				errno=0;
 				//int cpt=0;
 				while((directory= readdir(dir))!=NULL && !return_value){
@@ -260,11 +260,12 @@ int explore_dir(char * dir_path, int masque_option){
 						return_value=print_file((file_tab+i)->name,(file_tab+i)->file);
 
 					}
+					printf("\n");
 					if(!return_value){
 						sort_dir_path_tab(directory_tab,directory_size);
 
 						for(int i=0;i<directory_size && !return_value;i++){
-							printf("%s\n",*(directory_tab+i));
+							//printf("%s\n",*(directory_tab+i));
 							return_value=explore_dir(*(directory_tab+i),masque_option);
 						}
 					}
@@ -296,7 +297,7 @@ int explore_dir(char * dir_path, int masque_option){
 
 // droit, number of linked hard-link, owner, group, size, last modif time, nom (bleu=dossier, vert=executable)
 int print_file(char* name,struct stat* file){
-	
+
 	int return_value=0;
 	char droits[12];
 	char date[16];

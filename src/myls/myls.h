@@ -5,7 +5,6 @@
 #define NO_OPTION_IN_STRING 2
 #define OPTION_DONT_EXISTS 1
 
-#define DEBUG
 #include <dirent.h>
 #include <sys/stat.h>
 

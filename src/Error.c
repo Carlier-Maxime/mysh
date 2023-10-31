@@ -11,7 +11,15 @@ const char* errorMsg[] = {
         "Null Pointer error",
         "No Argument provided",
         "Fork failed",
-        "A manipulation environment error"
+        "A manipulation environment error",
+        "The function gmtime() could not represent the value",
+        "The function time() failed",
+        "Could not get the pwuid",
+        "Could not get the grgid",
+        "The function getcwd() failed",
+        "The option is invalid",
+        "Could not open the directory",
+        "The function stat() failed"
 };
 
 void Error_SetError_(ErrorStatus newStatus, const char* newFile, unsigned int newLine) {

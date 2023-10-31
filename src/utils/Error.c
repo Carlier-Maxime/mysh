@@ -19,7 +19,8 @@ const char* errorMsg[] = {
         "The function getcwd() failed",
         "The option is invalid",
         "Could not open the directory",
-        "The function stat() failed"
+        "The function stat() failed",
+        "Pipe creation failed"
 };
 
 void Error_SetError_(ErrorStatus newStatus, const char* newFile, unsigned int newLine) {

@@ -22,4 +22,8 @@ add_executable(mysh src/mysh/main.c
         src/mysh/TokenMapper.c
 )
 
-add_executable(test src/test/test.c)
+add_executable(test src/test/test.c
+        src/utils/Error.h
+        src/utils/Error.c
+        src/utils/macro.h
+)

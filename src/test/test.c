@@ -3,6 +3,7 @@
 #include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/Error.h"
 #include "../utils/macro.h"
 
@@ -78,14 +79,31 @@ exit:
     return out;
 }
 
+bool Test_AssertString(const char* expected, const char* actual) {
+    bool same = strcmp(expected,actual)==0;
+    if (!same) {
+        fprintf(stderr, "Assertion String, failed :\n");
+        size_t expected_len = strlen(expected);
+        size_t actual_len = strlen(actual);
+        if (expected_len != actual_len) {
+            fprintf(stderr, RED("\tnot same length")" : diff: "RED("%zu")", expected_len: "BLUE("%zu")", actual_len: "BLUE("%zu")"\n",
+                    expected_len > actual_len ? expected_len - actual_len : actual_len - expected_len, expected_len, actual_len);
+        }
+    }
+    return same;
+}
+
 int main() {
     char* const args[] = {"myls", "-Ra", "src", NULL};
-    char* out;
+    char* const args2[] = {"ls", "-lRa", "src", NULL};
+    char* out=NULL, *out2=NULL;
     if (!(out=Test_getProgramOutput(args[0], args))) goto exit;
-    printf("%s",out);
-    free(out);
+    if (!(out2=Test_getProgramOutput(args2[0], args2))) goto exit;
+    Test_AssertString(out,out2);
     Error_SetError(ERROR_NONE);
 exit:
+    free(out);
+    free(out2);
     if (Error_GetErrorStatus()!=ERROR_NONE) Error_PrintErrorMsg("Error : ");
     return Error_GetErrorStatus();
 }

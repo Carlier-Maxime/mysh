@@ -88,19 +88,32 @@ u_int Test_countLines(const char* str) {
 bool Test_AssertString(const char* expected, const char* actual) {
     bool same = strcmp(expected,actual)==0;
     if (!same) {
+        const char indent[] = "    ";
         fprintf(stderr, "Assertion String, failed :\n");
         size_t expected_len = strlen(expected);
         size_t actual_len = strlen(actual);
         if (expected_len != actual_len) {
-            fprintf(stderr, RED("\tnot same length")" : diff: "RED("%zu")", expected: "BLUE("%zu")", actual: "BLUE("%zu")"\n",
-                    expected_len > actual_len ? expected_len - actual_len : actual_len - expected_len, expected_len, actual_len);
+            fprintf(stderr, RED("%snot same length")" : diff: "RED("%zu")", expected: "BLUE("%zu")", actual: "BLUE("%zu")"\n",
+                    indent, expected_len > actual_len ? expected_len - actual_len : actual_len - expected_len, expected_len, actual_len);
             u_int expected_nbLines = Test_countLines(expected);
             u_int actual_nbLines = Test_countLines(actual);
             if (expected_nbLines!=actual_nbLines) {
-                fprintf(stderr, RED("\tnot same number lines")" : diff: "RED("%u")", expected: "BLUE("%u")", actual: "BLUE("%u")"\n",
-                        expected_nbLines > actual_nbLines ? expected_nbLines - actual_nbLines : actual_nbLines - expected_nbLines, expected_nbLines, actual_nbLines);
+                fprintf(stderr, RED("%snot same number lines")" : diff: "RED("%u")", expected: "BLUE("%u")", actual: "BLUE("%u")"\n",
+                        indent, expected_nbLines > actual_nbLines ? expected_nbLines - actual_nbLines : actual_nbLines - expected_nbLines, expected_nbLines, actual_nbLines);
             }
         }
+        u_int i;
+        fprintf(stderr, "%sexpected:\n%s%s", indent, indent, indent);
+        for (i=0; expected[i]!='\0'; i++) {
+            fprintf(stderr, "%c", expected[i]);
+            if (expected[i]=='\n') fprintf(stderr, "%s%s", indent, indent);
+        }
+        fprintf(stderr, "\r%sactual:\n%s%s", indent, indent, indent);
+        for (i=0; actual[i]!='\0'; i++) {
+            fprintf(stderr, "%c", actual[i]);
+            if (actual[i]=='\n') fprintf(stderr, "%s%s", indent, indent);
+        }
+        fprintf(stderr,"\r");
     }
     return same;
 }

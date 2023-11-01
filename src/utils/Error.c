@@ -20,7 +20,8 @@ const char* errorMsg[] = {
         "The option is invalid",
         "Could not open the directory",
         "The function stat() failed",
-        "Pipe creation failed"
+        "Pipe creation failed",
+        "Reading failed"
 };
 
 void Error_SetError_(ErrorStatus newStatus, const char* newFile, unsigned int newLine) {

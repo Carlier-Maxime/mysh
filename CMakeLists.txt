@@ -27,3 +27,12 @@ add_executable(test src/test/test.c
         src/utils/Error.c
         src/utils/macro.h
 )
+
+add_executable(myls src/myls/myls.c
+        src/myls/myls.h
+        src/utils/Error.h
+        src/utils/Error.c
+        src/utils/macro.h
+        src/myls/myls_sorter.h
+        src/myls/myls_sorter.c
+)

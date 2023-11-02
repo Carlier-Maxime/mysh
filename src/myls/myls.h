@@ -1,9 +1,8 @@
 #ifndef MYLS
 #define MYLS
 
-#define NOT_AN_OPTION 3
-#define NO_OPTION_IN_STRING 2
-#define OPTION_DONT_EXISTS 1
+
+#define NO_COLOR_OPTION "--no-color"
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -17,13 +16,10 @@ typedef struct {
 int exec_my_ls(int argc, char* argv[]);
 char** treat_arg(int argc, char* argv[], int* masque_option);
 int treat_option(int* masque_option, char* option);
+int explore_file(char* path, int masque_option);
+int explore_dir(char * dir_path, int masque_option, int display_dir_name);
 
-int explore_dir(char * dir_path, int masque_option);
-
-int print_file(char* name,struct stat* file);
-int get_access_right_string(char* string, int st_mode);
-int get_date(char* date,struct stat* file);
-char* get_dir_name(char* path);
+int print_file(char* name,struct stat* file, int masque_option);
 void sort_dir_path_tab(char** dir_path, int size);
 void sort_file_tab(full_file* file_tab, int size);
 

@@ -51,10 +51,14 @@ int exec_my_ls(int argc, char* argv[]){
 			int size = 0;
 			for(int i=0;args[i]!=NULL;i++) size+=1;
 			sort_dir_path_tab(args,size);
-
+			int is_there_file=0;
+			int is_there_dir=0;
 			for(int i=0;i<size && !return_value;i++){
-				return_value=explore_file(args[i],masque_option);
-				if(i==size-1) printf("\n");
+				int res=explore_file(args[i],masque_option);
+				if(res == 0) is_there_file=1;
+				if(res == -1) is_there_dir = 1;
+				if(res == 1) return_value = 1;
+				if(i==size-1 && is_there_dir && is_there_file) printf("\n");
 			}
 			for(int i=0;i<size && !return_value;i++){
 				current_root_path=args[i];
@@ -184,6 +188,8 @@ int explore_file(char* path,int masque_option){
 		}else{
 			if(!S_ISDIR(file->st_mode)){
 				return_value=print_file(get_name(path),file,masque_option);
+			}else{
+				return_value = -1;
 			}
 		}
 		free(file);

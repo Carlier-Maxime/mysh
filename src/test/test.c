@@ -122,17 +122,25 @@ bool Test_AssertString(const char* expected, const char* actual) {
     return same;
 }
 
-int main() {
-    char* const args[] = {"myls", "--no-color","-Ra", "src", NULL};
-    char* const args2[] = {"ls", "-lRa", "src", NULL};
+bool Test_AssertProgramsOutput(const char* program1, char* const* args_program1, const char* program2, char* const* args_program2) {
+    bool same=false;
     char* out=NULL, *out2=NULL;
-    if (!(out=Test_getProgramOutput(args[0], args))) goto exit;
-    if (!(out2=Test_getProgramOutput(args2[0], args2))) goto exit;
+    if (!(out=Test_getProgramOutput(program1, args_program1))) goto exit;
+    if (!(out2=Test_getProgramOutput(program2, args_program2))) goto exit;
     Test_AssertString(out,out2);
-    Error_SetError(ERROR_NONE);
+    same=true;
 exit:
     free(out);
     free(out2);
+    return same;
+}
+
+int main() {
+    char* const args[] = {"myls", "--no-color","-Ra", "src", NULL};
+    char* const args2[] = {"ls", "-lRa", "src", NULL};
+    if (!Test_AssertProgramsOutput(args[0], args, args2[0], args2)) goto exit;
+    Error_SetError(ERROR_NONE);
+exit:
     if (Error_GetErrorStatus()!=ERROR_NONE) Error_PrintErrorMsg("Error : ");
     return Error_GetErrorStatus();
 }

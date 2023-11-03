@@ -12,7 +12,7 @@ const char* errorMsg[] = {
         "No Argument provided",
         "Fork failed",
         "A manipulation environment error",
-        "The function gmtime() could not represent the value",
+        "The function localtime() could not represent the value",
         "The function time() failed",
         "Could not get the pwuid",
         "Could not get the grgid",

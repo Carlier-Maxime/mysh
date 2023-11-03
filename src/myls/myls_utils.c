@@ -31,12 +31,12 @@ int get_access_right_string(char* string, int st_mode){
 
 int get_date(char* string,struct stat* file){
 	int return_value = 0;
-	const char* months[12]={"Janv ","Févr ","Mars ","Avril","Mai  ","Juin ","Juil ","Août ", "Sept ","Oct  ","Nov  ","Déc  "};
+	const char* months[12]={"Jan","Feb","Mars","Apr","May","Jun","Jul","Aug", "Sep","Oct","Nov","Dec"};
 
-	struct tm* date = gmtime(&(file->st_mtime));
+	struct tm* date = localtime(&(file->st_mtime));
 	if(date == NULL){
 		return_value = 1;
-		Error_SetError(ERROR_GMTIME);
+		Error_SetError(ERROR_LOCALTIME);
 	}else{
 		int min=date->tm_min;
 		int hour=date->tm_hour;
@@ -48,10 +48,10 @@ int get_date(char* string,struct stat* file){
 			return_value=1;
 			Error_SetError(ERROR_TIME);
 		}else{
-			struct tm* current_date = gmtime(&current_time);
+			struct tm* current_date = localtime(&current_time);
 			if(current_date==NULL){
 				return_value=1;
-				Error_SetError(ERROR_GMTIME);
+				Error_SetError(ERROR_LOCALTIME);
 
 			}else{
 				char date_day[3];
@@ -104,4 +104,13 @@ char* get_path_from_root(char* root_path, char* file_path){
 		if(*(root_path+i)=='/') idx = i;
 	}
 	return file_path+idx+1;
+}
+int get_number_length(int number){
+	int length=0;
+	int tmp=number;
+	do{
+		tmp/=10;
+		length++;
+	}while(tmp>0);
+	return length;
 }

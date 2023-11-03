@@ -31,6 +31,7 @@ int exec_my_ls(int argc, char* argv[]){
 	int return_value=0;
 	int masque_option;
 	char** args = treat_arg(argc, argv, &masque_option); //a désalouer à la fin
+	
 	if(args == NULL){
 		return_value=1;
 	}else{
@@ -51,15 +52,7 @@ int exec_my_ls(int argc, char* argv[]){
 			int size = 0;
 			for(int i=0;args[i]!=NULL;i++) size+=1;
 			sort_dir_path_tab(args,size);
-			int is_there_file=0;
-			int is_there_dir=0;
-			for(int i=0;i<size && !return_value;i++){
-				int res=explore_file(args[i],masque_option);
-				if(res == 0) is_there_file=1;
-				if(res == -1) is_there_dir = 1;
-				if(res == 1) return_value = 1;
-				if(i==size-1 && is_there_dir && is_there_file) printf("\n");
-			}
+			return_value = explore_files_alones(args,size,masque_option);
 			for(int i=0;i<size && !return_value;i++){
 				current_root_path=args[i];
 				if(explore_dir(args[i],masque_option,size>1?1:0)){
@@ -173,7 +166,7 @@ int treat_option(int* masque_option, char* option){
 	}
 	return return_value;
 }
-int explore_file(char* path,int masque_option){
+int explore_file(char* path,int masque_option, full_file* file_tab, int idx){
 	int return_value=0;
 	struct stat * file = malloc(sizeof(struct stat));
 	if(file==NULL){
@@ -184,15 +177,19 @@ int explore_file(char* path,int masque_option){
 		int stat_res = stat(path,file);
 		if(stat_res==-1){
 			return_value=1;
+			free(file);
 			Error_SetError(ERROR_STAT);					
 		}else{
 			if(!S_ISDIR(file->st_mode)){
-				return_value=print_file(get_name(path),file,masque_option);
+				(file_tab+idx)->file=file;
+				(file_tab+idx)->name=get_name(path);
+				//return_value=print_file(get_name(path),file,masque_option,0);
 			}else{
 				return_value = -1;
+				free(file);
 			}
 		}
-		free(file);
+		
 	}
 	return return_value;
 }
@@ -298,9 +295,15 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 				if(!return_value){
 					printf("total %d\n",block_total);
 					sort_file_tab(file_tab,file_size);
+					int max_length=0;
+					for(int i=0;i<file_size;i++){
+						
+						int length = get_number_length((file_tab+i)->file->st_size);
+						max_length=max_length>length?max_length:length;
+					}
 					for(int i=0;i<file_size && !return_value; i++){
 		
-						return_value=print_file((file_tab+i)->name,(file_tab+i)->file,masque_option);
+						return_value=print_file((file_tab+i)->name,(file_tab+i)->file,masque_option,max_length);
 
 					}
 					if(!return_value){
@@ -339,7 +342,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 }
 
 // droit, number of linked hard-link, owner, group, size, last modif time, nom (bleu=dossier, vert=executable)
-int print_file(char* name,struct stat* file,int masque_option){
+int print_file(char* name,struct stat* file,int masque_option, int size_length){
 
 	int return_value=0;
 	char droits[12];
@@ -365,12 +368,19 @@ int print_file(char* name,struct stat* file,int masque_option){
 		if(!return_value){
 			if(owner_name == NULL) owner_name = " ";
 			if(group_name == NULL) group_name = " ";
+			printf("%s %ld %s %s ",droits,file->st_nlink,owner_name,group_name);
+			int length=get_number_length(file->st_size);
+			int length_diff=size_length-length;
+			for(int i=0;i<length_diff;i++){
+				printf(" ");
+			}
+			printf("%ld %s ",file->st_size,date);
 			if(S_ISDIR(file->st_mode) && !(masque_option & 4)){
-				printf("%s %ld %s %s %ld %s %s%s%s\n",droits,file->st_nlink,owner_name,group_name, file->st_size,date,BLUE_BEGIN,name,COLOR_RESET);
+				printf("%s%s%s\n",BLUE_BEGIN,name,COLOR_RESET);
 			}else if(is_executable && !(masque_option & 4)){
-				printf("%s %ld %s %s %ld %s %s%s%s\n",droits,file->st_nlink,owner_name,group_name, file->st_size,date,GREEN_BEGIN,name,COLOR_RESET);
+				printf("%s%s%s\n",GREEN_BEGIN,name,COLOR_RESET);
 			}else{
-				printf("%s %ld %s %s %ld %s %s\n",droits,file->st_nlink,owner_name,group_name, file->st_size,date,name);
+				printf("%s\n",name);
 			}
 		}
 	}
@@ -433,6 +443,50 @@ int push_directory(char* path,int* directory_size, int* directory_max_size, char
 		(*directory_size)++;
 
 	}
+	return return_value;
+}
+
+int explore_files_alones(char** args,int max_size, int masque_option){
+	int return_value=0;
+	int is_there_file=0;
+	int is_there_dir=0;
+	full_file* file_tab=malloc(sizeof(full_file)*max_size);
+	int file_size=0;
+	if(file_tab==NULL){
+		return_value=1;
+		Error_SetError(ERROR_MEMORY_ALLOCATION);
+	}else{
+		for(int i=0;i<max_size && !return_value;i++){
+			int res=explore_file(args[i],masque_option,file_tab,file_size);
+			if(res==1){
+				return_value=1;
+			}else{
+				
+				if(res == 0) {
+					is_there_file=1;
+					file_size++;
+				}
+				if(res == -1) is_there_dir = 1;
+				//if(i==size-1 && is_there_dir && is_there_file) printf("\n");
+			}
+		}
+		int max_length=0;
+		for(int i=0;i<file_size;i++){
+						
+			int length = get_number_length((file_tab+i)->file->st_size);
+			max_length=max_length>length?max_length:length;
+		}
+		for(int i=0;i<file_size && !return_value; i++){
+			return_value=print_file((file_tab+i)->name,(file_tab+i)->file,masque_option,max_length);
+		}
+		for(int i=0;i<file_size;i++){
+			free((file_tab+i)->file);
+		}
+		free(file_tab);
+		if(is_there_dir && is_there_file) printf("\n");
+	}
+			
+	
 	return return_value;
 }
 

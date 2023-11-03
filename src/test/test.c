@@ -102,7 +102,11 @@ bool Test_AssertString(const char* expected, const char* actual) {
                         indent, expected_nbLines > actual_nbLines ? expected_nbLines - actual_nbLines : actual_nbLines - expected_nbLines, expected_nbLines, actual_nbLines);
             }
         }
+        size_t diff = actual_len < expected_len ? expected_len - actual_len : actual_len - expected_len;
+        size_t min_len = actual_len < expected_len ? actual_len : expected_len;
         u_int i;
+        for (i = 0; i < min_len; i++) if (expected[i] != actual[i]) diff++;
+        fprintf(stderr,RED("%snot same chars")" : %zu different(s) char(s) (the number of difference may be not exact)\n", indent, diff);
         fprintf(stderr, "%sexpected:\n%s%s", indent, indent, indent);
         for (i=0; expected[i]!='\0'; i++) {
             fprintf(stderr, "%c", expected[i]);
@@ -119,7 +123,7 @@ bool Test_AssertString(const char* expected, const char* actual) {
 }
 
 int main() {
-    char* const args[] = {"myls", "-Ra", "src", NULL};
+    char* const args[] = {"myls", "--no-color","-Ra", "src", NULL};
     char* const args2[] = {"ls", "-lRa", "src", NULL};
     char* out=NULL, *out2=NULL;
     if (!(out=Test_getProgramOutput(args[0], args))) goto exit;

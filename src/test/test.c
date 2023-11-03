@@ -136,9 +136,20 @@ exit:
 }
 
 int main() {
-    char* const args[] = {"myls", "--no-color","-Ra", "src", NULL};
-    char* const args2[] = {"ls", "-lRa", "src", NULL};
-    if (!Test_AssertProgramsOutput(args[0], args, args2[0], args2)) goto exit;
+    char* tests[][6] = {
+            {"myls", "--no-color", "src/myls/myls.c", NULL},
+            {"ls", "-l", "src/myls/myls.c", NULL},
+            {"myls", "--no-color", "src", NULL},
+            {"ls", "-l", "src", NULL},
+            {"myls", "--no-color","-a", "src", NULL},
+            {"ls", "-la", "src", NULL},
+            {"myls", "--no-color","-Ra", "src", NULL},
+            {"ls", "-lRa", "src", NULL},
+            {"myls", "--no-color", "src", "-a", "-R", NULL},
+            {"ls", "-lRa", "src", NULL},
+            {NULL}
+    };
+    for (u_int i=0; tests[i][0]; i+=2) if (!Test_AssertProgramsOutput(tests[i][0], tests[i], tests[i+1][0], tests[i+1])) goto exit;
     Error_SetError(ERROR_NONE);
 exit:
     if (Error_GetErrorStatus()!=ERROR_NONE) Error_PrintErrorMsg("Error : ");

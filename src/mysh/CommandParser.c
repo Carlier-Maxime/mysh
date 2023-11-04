@@ -42,36 +42,36 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
     }
-    if (!CommandParser_resizeIfFull(this)) return false;
-    Token token = TokenMapper_processChar(this->tokenMapper, c);
-    switch (token) {
-        case TOKEN_ERROR:
-            return false;
-        case TOKEN_CHAR:
-            this->chars[this->pos++]=c;
-            break;
-        case TOKEN_STR:
-            if (!this->pos) break;
-            this->chars[this->pos++]='\0';
-            if (!CommandFactory_addArgument(this->factory, this->chars)) return false;
-            this->pos=0;
-            break;
-        case TOKEN_EXECUTE:
-            if (this->pos) {
-                this->chars[this->pos]='\0';
+    if(!TokenMapper_setCurrentChar(this->tokenMapper, c)) return false;
+    Token token;
+    int nbArgs;
+    while ((token=TokenMapper_process(this->tokenMapper))!=TOKEN_NONE) {
+        if (!CommandParser_resizeIfFull(this)) return false;
+        switch (token) {
+            case TOKEN_ERROR:
+                return false;
+            case TOKEN_CHAR:
+                this->chars[this->pos++]=c;
+                break;
+            case TOKEN_STR:
+                if (!this->pos) break;
+                this->chars[this->pos++]='\0';
                 if (!CommandFactory_addArgument(this->factory, this->chars)) return false;
-            }
-            int nbArgs=CommandFactory_getNbArgs(this->factory);
-            if (nbArgs==-1) return false;
-            if (nbArgs && !CommandParser_executeCommandQueue(this)) return false;
-            printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
-            this->pos=0;
-            break;
-        case TOKEN_NEW_LINE:
-            printf("> ");
-            break;
-        default:
-            break;
+                this->pos=0;
+                break;
+            case TOKEN_EXECUTE:
+                nbArgs = CommandFactory_getNbArgs(this->factory);
+                if (nbArgs==-1) return false;
+                if (nbArgs<1 || !CommandParser_executeCommandQueue(this)) return false;
+                printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
+                this->pos=0;
+                break;
+            case TOKEN_NEW_LINE:
+                printf("> ");
+                break;
+            default:
+                break;
+        }
     }
     Error_SetError(ERROR_NONE);
     return true;

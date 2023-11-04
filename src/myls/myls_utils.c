@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #include "../utils/Error.h"
 
@@ -81,6 +82,14 @@ char* get_name(char* path){
 	char* res=path;
 	for(int i=0;path[i]!='\0';i++){
 		if(path[i]=='/') res=path+i+1;
+	}
+	return res;
+}
+char* get_original_name(char* path){
+	char* res=path;
+	int length = strlen(path);
+	for(int i=0;i<length-3;i++){
+		if(path[i]=='/' && path[i+1]=='/') res = path+i+2;
 	}
 	return res;
 }

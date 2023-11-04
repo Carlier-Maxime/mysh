@@ -155,7 +155,7 @@ bool Test_test_myls() {
             myls[TEST_TEST_MYLS_MYLS_ARGS_BASE+j]=end_args[i][j];
             ls[TEST_TEST_MYLS_LS_ARGS_BASE+j]=end_args[i][j];
         }
-        if (!Test_AssertProgramsOutput(myls[0], myls, ls[0], ls)) return false;
+        if (!Test_AssertProgramsOutput(ls[0], ls, myls[0], myls)) return false;
     }
     return true;
 }

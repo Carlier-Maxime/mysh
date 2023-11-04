@@ -13,6 +13,10 @@ typedef struct {
 	struct stat* file;
 } full_file;
 
+typedef struct{
+	char* path;
+	char* absolute_path;
+}precise_path;
 
 
 

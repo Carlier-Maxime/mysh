@@ -108,14 +108,14 @@ char** treat_arg(int argc, char* argv[], int* masque_option){
 						
 					}else{
 
-						int length_path = strlen(argv[i])+2+current_path_length;
+						int length_path = strlen(argv[i])+3+current_path_length;
 						dir_tab[cpt]= malloc(sizeof(char)*length_path);
 						if(dir_tab[cpt]==NULL){
 							erreur=1;
 							Error_SetError(ERROR_MEMORY_ALLOCATION);
 						}else{
 
-							sprintf(dir_tab[cpt],"%s/%s",current_path,argv[i]);
+							sprintf(dir_tab[cpt],"%s//%s",current_path,argv[i]);
 
 							cpt++;
 						}
@@ -182,7 +182,7 @@ int explore_file(char* path,int masque_option, full_file* file_tab, int idx){
 		}else{
 			if(!S_ISDIR(file->st_mode)){
 				(file_tab+idx)->file=file;
-				(file_tab+idx)->name=get_name(path);
+				(file_tab+idx)->name=get_original_name(path);
 				//return_value=print_file(get_name(path),file,masque_option,0);
 			}else{
 				return_value = -1;

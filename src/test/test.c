@@ -127,7 +127,7 @@ bool Test_AssertProgramsOutput(const char* program1, char* const* args_program1,
     char* out=NULL, *out2=NULL;
     if (!(out=Test_getProgramOutput(program1, args_program1))) goto exit;
     if (!(out2=Test_getProgramOutput(program2, args_program2))) goto exit;
-    Test_AssertString(out,out2);
+    if (!Test_AssertString(out,out2)) goto exit;
     same=true;
 exit:
     free(out);
@@ -135,21 +135,33 @@ exit:
     return same;
 }
 
-int main() {
-    char* tests[][6] = {
-            {"myls", "--no-color", "src/myls/myls.c", NULL},
-            {"ls", "-l", "src/myls/myls.c", NULL},
-            {"myls", "--no-color", "src", NULL},
-            {"ls", "-l", "src", NULL},
-            {"myls", "--no-color","-a", "src", NULL},
-            {"ls", "-la", "src", NULL},
-            {"myls", "--no-color","-Ra", "src", NULL},
-            {"ls", "-lRa", "src", NULL},
-            {"myls", "--no-color", "src", "-a", "-R", NULL},
-            {"ls", "-lRa", "src", NULL},
+bool Test_test_myls() {
+#define TEST_TEST_MYLS_MAX_ARGS 6
+#define TEST_TEST_MYLS_MYLS_ARGS_BASE 2
+#define TEST_TEST_MYLS_LS_ARGS_BASE 3
+    char* myls[TEST_TEST_MYLS_MAX_ARGS+TEST_TEST_MYLS_MYLS_ARGS_BASE] = {"myls", "--no-color"};
+    char* ls[TEST_TEST_MYLS_MAX_ARGS+TEST_TEST_MYLS_LS_ARGS_BASE] = {"ls", "--color=never", "-l"};
+    char* end_args[][TEST_TEST_MYLS_MAX_ARGS] = {
+            {"src/myls/myls.c", NULL},
+            {"src", NULL},
+            {"-a", "src", NULL},
+            {"-Ra", "src", NULL},
+            {"src", "-a", "-R", NULL},
             {NULL}
     };
-    for (u_int i=0; tests[i][0]; i+=2) if (!Test_AssertProgramsOutput(tests[i][0], tests[i], tests[i+1][0], tests[i+1])) goto exit;
+    u_int j;
+    for (u_int i=0; end_args[i][0]; i++) {
+        for (j=0; end_args[i][j]; j++) {
+            myls[TEST_TEST_MYLS_MYLS_ARGS_BASE+j]=end_args[i][j];
+            ls[TEST_TEST_MYLS_LS_ARGS_BASE+j]=end_args[i][j];
+        }
+        if (!Test_AssertProgramsOutput(myls[0], myls, ls[0], ls)) return false;
+    }
+    return true;
+}
+
+int main() {
+    if (!Test_test_myls()) goto exit;
     Error_SetError(ERROR_NONE);
 exit:
     if (Error_GetErrorStatus()!=ERROR_NONE) Error_PrintErrorMsg("Error : ");

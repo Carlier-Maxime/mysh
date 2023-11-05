@@ -6,8 +6,9 @@
 #include "TokenMapper.h"
 
 typedef struct CommandParser {
-    unsigned int max_args, nb_arg, *len_args, arg_pos;
+    unsigned int max_args, nb_arg, *len_args, arg_pos, max_tokens, nb_token;
     char **args;
+    Token *tokens;
     CommandFactory* factory;
     TokenMapper* tokenMapper;
 } CommandParser;

@@ -55,6 +55,14 @@ bool CommandParser_resizeIfFull(CommandParser* this) {
         }
         this->args[this->nb_arg]=tmp;
     }
+    if (this->nb_token == this->max_tokens) {
+        Token* tmp = realloc(this->tokens, this->max_tokens<<=1);
+        if (!tmp) {
+            this->max_tokens>>=1;
+            return false;
+        }
+        this->tokens=tmp;
+    }
     Error_SetError(ERROR_NONE);
     return true;
 }
@@ -70,6 +78,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
     int nbArgs;
     while ((token=TokenMapper_process(this->tokenMapper))!=TOKEN_NONE) {
         if (!CommandParser_resizeIfFull(this)) return false;
+        this->tokens[this->nb_token++]=token;
         switch (token) {
             case TOKEN_ERROR:
                 return false;
@@ -90,6 +99,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
                 printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
                 this->arg_pos=0;
                 this->nb_arg=0;
+                this->nb_token=0;
                 break;
             case TOKEN_NEW_LINE:
                 printf("> ");
@@ -109,6 +119,9 @@ CommandParser* CommandParser_create() {
     this->max_args=16;
     this->nb_arg=0;
     this->arg_pos=0;
+    this->max_tokens=32;
+    this->nb_token=0;
+    this->tokens=NULL;
     this->args=NULL;
     this->len_args=NULL;
     this->factory=NULL;
@@ -120,6 +133,7 @@ CommandParser* CommandParser_create() {
         this->len_args[i]=COMMAND_PARSER_WORD_DEFAULT_LEN;
         if(!(this->args[i] = malloc(sizeof(char) * this->len_args[i]))) goto cleanup;
     }
+    if (!(this->tokens = malloc(sizeof(Token) * this->max_tokens))) goto cleanup;
     if (!(this->factory=CommandFactory_create())) goto cleanup;
     if (!(this->tokenMapper=TokenMapper_create())) goto cleanup;
     Error_SetError(ERROR_NONE);
@@ -136,5 +150,6 @@ void CommandParser_destroy(CommandParser* this) {
     if (this->args) for (unsigned int i=0; i < this->max_args; i++) free(this->args[i]);
     free(this->args);
     free(this->len_args);
+    free(this->tokens);
     free(this);
 }

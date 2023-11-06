@@ -7,7 +7,7 @@
 #include "../utils/Error.h"
 #include "../utils/macro.h"
 
-bool Command_execute(Command* this) {
+bool Command_execute(const Command* this) {
     if (!this || !this->name || !this->args) {
         Error_SetError(ERROR_NULL_POINTER);
         return false;
@@ -46,8 +46,7 @@ Command* Command_create(const char* name, const char** args) {
     int nb=0;
     while (args[nb]) nb++;
     if (!(this->args=malloc(sizeof(char*)*(nb+2)))) goto cleanup;
-    this->args[0]=this->name;
-    for (size_t i=0; i<nb; i++) if (!(this->args[i+1] = strdup(args[i]))) goto cleanup;
+    for (size_t i=0; i<nb; i++) if (!(this->args[i] = strdup(args[i]))) goto cleanup;
     this->args[nb+1] = NULL;
     Error_SetError(ERROR_NONE);
     return this;

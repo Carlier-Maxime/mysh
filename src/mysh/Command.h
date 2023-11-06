@@ -10,6 +10,6 @@ typedef struct Command {
 
 Command* Command_create(const char* name, const char** args);
 void Command_destroy(Command* this);
-bool Command_execute(Command* this);
+bool Command_execute(const Command* this);
 
 #endif //MYSH_COMMAND_H

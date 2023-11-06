@@ -8,15 +8,15 @@
 #include "../utils/Error.h"
 
 
-int get_access_right_string(char* string, int st_mode){
+int get_access_right_string(char* string, size_t st_mode){
 	string[0]= S_ISDIR(st_mode)? 'd':'-';
-	int tmp = st_mode;
+	size_t tmp = st_mode;
 	int executable = 0;
 	for(int i=0;i<9;i++){
 		int modulo = i%3;
 		int idx = 8-(i/3)*3-modulo+1;
 		if(tmp & 1){
-			string[idx] = modulo==2?'r':modulo==1?'w':'x';
+			string[idx] = (char) (modulo==2?'r':modulo==1?'w':'x');
 			if(modulo==0) {
 				executable =1;
 			}
@@ -87,8 +87,8 @@ char* get_name(char* path){
 }
 char* get_original_name(char* path){
 	char* res=path;
-	int length = strlen(path);
-	for(int i=0;i<length-3;i++){
+	size_t length = strlen(path);
+	for(size_t i=0;i<length-3;i++){
 		if(path[i]=='/' && path[i+1]=='/') res = path+i+2;
 	}
 	return res;
@@ -114,9 +114,9 @@ char* get_path_from_root(char* root_path, char* file_path){
 	}
 	return file_path+idx+1;
 }
-int get_number_length(int number){
-	int length=0;
-	int tmp=number;
+size_t get_number_length(size_t number){
+	size_t length=0;
+	size_t tmp=number;
 	do{
 		tmp/=10;
 		length++;

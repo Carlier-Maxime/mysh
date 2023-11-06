@@ -26,7 +26,7 @@ int treat_option(int* masque_option, char* option);
 int explore_file(char* path, int masque_option, full_file* file_tab, int idx);
 int explore_dir(char * dir_path, int masque_option, int display_dir_name);
 
-int print_file(char* name,struct stat* file, int masque_option, int size_length);
+int print_file(char* name,struct stat* file, int masque_option, size_t size_length);
 void sort_dir_path_tab(char** dir_path, int size);
 void sort_file_tab(full_file* file_tab, int size);
 

@@ -79,7 +79,7 @@ char** treat_arg(int argc, char* argv[], int* masque_option){
         error=1;
 		Error_SetError(ERROR_GETCWD);
 	}else{
-		int current_path_length=strlen(current_path);
+		size_t current_path_length=strlen(current_path);
 
 		char** dir_tab = malloc(sizeof(char*)*(argc+1));
 		if(dir_tab == NULL){
@@ -107,7 +107,7 @@ char** treat_arg(int argc, char* argv[], int* masque_option){
 						
 					}else{
 
-						int length_path = strlen(argv[i])+3+current_path_length;
+						size_t length_path = strlen(argv[i])+3+current_path_length;
 						dir_tab[cpt]= malloc(sizeof(char)*length_path);
 						if(dir_tab[cpt]==NULL){
                             error=1;
@@ -198,7 +198,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 	int file_size=0;
 	int directory_max_size=10;
 	int directory_size=0;
-	int block_total=0;
+	size_t block_total=0;
 	struct dirent* directory;
 
 
@@ -292,12 +292,12 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 					
 				}
 				if(!return_value){
-					printf("total %d\n",block_total);
+					printf("total %zu\n",block_total);
 					sort_file_tab(file_tab,file_size);
-					int max_length=0;
+					size_t max_length=0;
 					for(int i=0;i<file_size;i++){
 						
-						int length = get_number_length((file_tab+i)->file->st_size);
+						size_t length = get_number_length((file_tab+i)->file->st_size);
 						max_length=max_length>length?max_length:length;
 					}
 					for(int i=0;i<file_size && !return_value; i++){
@@ -341,8 +341,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 }
 
 // permissions, number of linked hard-link, owner, group, size, last modify time, nom (bleu=dossier, vert=executable)
-int print_file(char* name,struct stat* file,int masque_option, int size_length){
-
+int print_file(char* name,struct stat* file,int masque_option, size_t size_length){
 	int return_value=0;
 	char permissions[12];
 	char date[16];
@@ -368,9 +367,9 @@ int print_file(char* name,struct stat* file,int masque_option, int size_length){
 			if(owner_name == NULL) owner_name = " ";
 			if(group_name == NULL) group_name = " ";
 			printf("%s %ld %s %s ", permissions, file->st_nlink, owner_name, group_name);
-			int length=get_number_length(file->st_size);
-			int length_diff=size_length-length;
-			for(int i=0;i<length_diff;i++){
+			size_t length=get_number_length(file->st_size);
+			size_t length_diff=size_length-length;
+			for(size_t i=0;i<length_diff;i++){
 				printf(" ");
 			}
 			printf("%ld %s ",file->st_size,date);
@@ -469,10 +468,10 @@ int explore_files_alones(char** args,int max_size, int masque_option){
 				//if(i==size-1 && is_there_dir && is_there_file) printf("\n");
 			}
 		}
-		int max_length=0;
+		size_t max_length=0;
 		for(int i=0;i<file_size;i++){
 						
-			int length = get_number_length((file_tab+i)->file->st_size);
+			size_t length = get_number_length((file_tab+i)->file->st_size);
 			max_length=max_length>length?max_length:length;
 		}
 		for(int i=0;i<file_size && !return_value; i++){

@@ -22,7 +22,7 @@ bool CommandFactory_resizeIfFull(CommandFactory* this) {
     return true;
 }
 
-const Command** CommandFactory_buildCommands(CommandFactory* this, Token* tokens, char** args) {
+const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* tokens, char** args) {
     if (!this || !this->commands || !tokens || !args) {
         Error_SetError(ERROR_NULL_POINTER);
         return NULL;

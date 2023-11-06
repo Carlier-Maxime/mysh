@@ -107,7 +107,7 @@ void convert_to_date_number(int number, char* date_number){
 		sprintf(date_number,"%d",number);
 	}
 }
-char* get_path_from_root(char* root_path, char* file_path){
+char* get_path_from_root(const char* root_path, char* file_path){
 	int idx=0;
 	for(int i=0;*(root_path+i)!='\0';i++){
 		if(*(root_path+i)=='/') idx = i;

@@ -8,5 +8,5 @@ char* get_name(char* path);
 char* get_original_name(char* path);
 void convert_to_time_number(int number, char* time_number);
 void convert_to_date_number(int number, char* date_number);
-char* get_path_from_root(char* root_path, char* file_path);
+char* get_path_from_root(const char* root_path, char* file_path);
 unsigned long get_number_length(unsigned long number);

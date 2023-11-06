@@ -14,7 +14,7 @@
 
 #include "../utils/macro.h"
 #include "../utils/Error.h"
-#define is_not_point_directory(i) (strcmp(i,".") && strcmp(i,".."))
+#define is_not_point_directory(i) (strcmp(i,".")!=0 && strcmp(i,"..")!=0)
 
 char* current_root_path="/";
 
@@ -342,7 +342,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 
 // permissions, number of linked hard-link, owner, group, size, last modify time, nom (bleu=dossier, vert=executable)
 int print_file(char* name,struct stat* file,int masque_option, size_t size_length){
-	int return_value=0;
+	int return_value;
 	char permissions[12];
 	char date[16];
 

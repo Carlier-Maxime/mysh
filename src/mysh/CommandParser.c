@@ -79,13 +79,11 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
                 this->nb_arg++;
                 break;
             case TOKEN_EXECUTE:
-                if (!this->nb_arg) {
-                    printf(BLUE("%s")"> ", Environment_getCwd());
-                    break;
+                if (this->nb_arg) {
+                    this->args[this->nb_arg]=NULL;
+                    if (!(commands=CommandFactory_buildCommands(this->factory, this->tokens, this->args))) return false;
+                    for (i=0; commands[i]; i++) Command_execute(commands[i]);
                 }
-                this->args[this->nb_arg]=NULL;
-                if (!(commands=CommandFactory_buildCommands(this->factory, this->tokens, this->args))) return false;
-                for (i=0; commands[i]; i++) Command_execute(commands[i]);
                 printf(BLUE("%s")"> ", Environment_getCwd());
                 this->arg_pos=0;
                 this->nb_arg=0;

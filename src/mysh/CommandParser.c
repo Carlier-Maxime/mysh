@@ -6,20 +6,6 @@
 
 #define COMMAND_PARSER_WORD_DEFAULT_LEN 16
 
-bool CommandParser_executeCommandQueue(CommandParser* this) {
-    if (!this) {
-        Error_SetError(ERROR_NULL_POINTER);
-        return false;
-    }
-    Command *command = CommandFactory_build(this->factory);
-    if (!command) return false;
-    if (!Command_execute(command)) return false;
-    this->nb_arg=0;
-    this->arg_pos=0;
-    Error_SetError(ERROR_NONE);
-    return true;
-}
-
 bool CommandParser_resizeIfFull(CommandParser* this) {
     if (!this || !this->args || !this->len_args) {
         Error_SetError(ERROR_NULL_POINTER);
@@ -75,10 +61,11 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
     }
     if(!TokenMapper_setCurrentChar(this->tokenMapper, c)) return false;
     Token token;
-    int nbArgs;
+    const Command** commands;
+    unsigned int i;
     while ((token=TokenMapper_process(this->tokenMapper))!=TOKEN_NONE) {
         if (!CommandParser_resizeIfFull(this)) return false;
-        this->tokens[this->nb_token++]=token;
+        if (token!=TOKEN_CHAR) this->tokens[this->nb_token++]=token;
         switch (token) {
             case TOKEN_ERROR:
                 return false;
@@ -88,14 +75,13 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
             case TOKEN_STR:
                 if (!this->arg_pos) break;
                 this->args[this->nb_arg][this->arg_pos++]='\0';
-                if (!CommandFactory_addArgument(this->factory, this->args[this->nb_arg])) return false;
                 this->arg_pos=0;
                 this->nb_arg++;
                 break;
             case TOKEN_EXECUTE:
-                nbArgs = CommandFactory_getNbArgs(this->factory);
-                if (nbArgs==-1) return false;
-                if (nbArgs<1 || !CommandParser_executeCommandQueue(this)) return false;
+                this->args[this->nb_arg]=NULL;
+                if (!(commands=CommandFactory_buildCommands(this->factory, this->tokens, this->args))) return false;
+                for (i=0; commands[i]; i++) Command_execute(commands[i]);
                 printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
                 this->arg_pos=0;
                 this->nb_arg=0;

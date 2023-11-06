@@ -82,7 +82,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
                 this->args[this->nb_arg]=NULL;
                 if (!(commands=CommandFactory_buildCommands(this->factory, this->tokens, this->args))) return false;
                 for (i=0; commands[i]; i++) Command_execute(commands[i]);
-                printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
+                printf(BLUE("%s")"> ", Environment_getCwd());
                 this->arg_pos=0;
                 this->nb_arg=0;
                 this->nb_token=0;

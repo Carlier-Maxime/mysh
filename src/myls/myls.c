@@ -376,9 +376,9 @@ int print_file(char* name,struct stat* file,int masque_option, int size_length){
 			}
 			printf("%ld %s ",file->st_size,date);
 			if(S_ISDIR(file->st_mode) && !(masque_option & 4)){
-				printf("%s%s%s\n",BLUE_BEGIN,name,COLOR_RESET);
+				printf(BLUE("%s\n"),name);
 			}else if(is_executable && !(masque_option & 4)){
-				printf("%s%s%s\n",GREEN_BEGIN,name,COLOR_RESET);
+				printf(GREEN("%s\n"),name);
 			}else{
 				printf("%s\n",name);
 			}

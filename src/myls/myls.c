@@ -165,7 +165,7 @@ int treat_option(int* masque_option, char* option){
 	}
 	return return_value;
 }
-int explore_file(char* path,int masque_option, full_file* file_tab, int idx){
+int explore_file(char *path, full_file *file_tab, int idx) {
 	int return_value=0;
 	struct stat * file = malloc(sizeof(struct stat));
 	if(file==NULL){
@@ -182,7 +182,6 @@ int explore_file(char* path,int masque_option, full_file* file_tab, int idx){
 			if(!S_ISDIR(file->st_mode)){
 				(file_tab+idx)->file=file;
 				(file_tab+idx)->name=get_original_name(path);
-				//return_value=print_file(get_name(path),file,masque_option,0);
 			}else{
 				return_value = -1;
 				free(file);
@@ -455,7 +454,7 @@ int explore_files_alones(char** args,int max_size, int masque_option){
 		Error_SetError(ERROR_MEMORY_ALLOCATION);
 	}else{
 		for(int i=0;i<max_size && !return_value;i++){
-			int res=explore_file(args[i],masque_option,file_tab,file_size);
+			int res= explore_file(args[i], file_tab, file_size);
 			if(res==1){
 				return_value=1;
 			}else{

@@ -43,10 +43,10 @@ Command* Command_create(const char* name, const char** args) {
     Command* this = malloc(sizeof(Command));
     if (!this) return NULL;
     if  (!(this->name=strdup(name))) goto cleanup;
-    int nb=0;
+    u_int nb=0;
     while (args[nb]) nb++;
     if (!(this->args=malloc(sizeof(char*)*(nb+2)))) goto cleanup;
-    for (size_t i=0; i<nb; i++) if (!(this->args[i] = strdup(args[i]))) goto cleanup;
+    for (u_int i=0; i<nb; i++) if (!(this->args[i] = strdup(args[i]))) goto cleanup;
     this->args[nb+1] = NULL;
     Error_SetError(ERROR_NONE);
     return this;
@@ -58,9 +58,9 @@ cleanup:
 void Command_destroy(Command* this) {
     if (!this) return;
     if (this->args) {
-        int nb=0;
+        u_int nb=0;
         while (this->args[nb++]);
-        for (size_t i=0; i<nb; i++) free(this->args[i]);
+        for (u_int i=0; i<nb; i++) free(this->args[i]);
         free(this->args);
     }
     free(this->name);

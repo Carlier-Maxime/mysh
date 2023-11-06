@@ -71,73 +71,56 @@ int exec_my_ls(int argc, char* argv[]){
 }
 
 char** treat_arg(int argc, char* argv[], int* masque_option){
-	char** return_value=NULL;
-	int error=0;
+    char** dir_tab=NULL;
+    int cpt=0;
 	*masque_option=0;
-	char* current_path= getcwd(NULL,0);
-	if(current_path == NULL){
-        error=1;
+	char* current_path = getcwd(NULL,0);
+	if(!current_path){
 		Error_SetError(ERROR_GETCWD);
-	}else{
-		size_t current_path_length=strlen(current_path);
-
-		char** dir_tab = malloc(sizeof(char*)*(argc+1));
-		if(dir_tab == NULL){
-            error=1;
-			Error_SetError(ERROR_MEMORY_ALLOCATION);
-		}else{
-			int cpt=0;
-			for(int i=0;i<argc && !error; i++){
-				if(argv[i][0]=='-'){
-					int res=treat_option(masque_option,argv[i]);
-					if(res){
-                        error=1;
-					}
-				}else{
-					if(argv[i][0]=='/'){
-
-						dir_tab[cpt]=malloc(sizeof(char)*(strlen(argv[i])+1));
-						if(dir_tab[cpt]==NULL){
-                            error=1;
-							Error_SetError(ERROR_MEMORY_ALLOCATION);
-						}else{
-							strcpy(dir_tab[cpt],argv[i]);
-							cpt++;
-						}
-						
-					}else{
-
-						size_t length_path = strlen(argv[i])+3+current_path_length;
-						dir_tab[cpt]= malloc(sizeof(char)*length_path);
-						if(dir_tab[cpt]==NULL){
-                            error=1;
-							Error_SetError(ERROR_MEMORY_ALLOCATION);
-						}else{
-
-							sprintf(dir_tab[cpt],"%s//%s",current_path,argv[i]);
-
-							cpt++;
-						}
-					}
-				}
-
-			}
-			if(error){
-				for(int i=0;i<cpt;i++){
-					free(dir_tab[i]);
-				}
-				free(dir_tab);
-			}else{
-				dir_tab[cpt]=NULL;
-				return_value = dir_tab;
-			}
-		}
-		free(current_path);
-		
+        goto cleanup;
 	}
-	
-	return return_value;
+    size_t current_path_length=strlen(current_path);
+    dir_tab = malloc(sizeof(char*)*(argc+1));
+    if(!dir_tab){
+        Error_SetError(ERROR_MEMORY_ALLOCATION);
+        goto cleanup;
+    }
+    for(int i=0;i<argc; i++){
+        if(argv[i][0]=='-'){
+            int res=treat_option(masque_option,argv[i]);
+            if (res) goto cleanup;
+        }else{
+            if(argv[i][0]=='/'){
+                if(!(dir_tab[cpt]=malloc(sizeof(char)*(strlen(argv[i])+1)))){
+                    Error_SetError(ERROR_MEMORY_ALLOCATION);
+                    goto cleanup;
+                }
+                strcpy(dir_tab[cpt],argv[i]);
+                cpt++;
+            }else{
+                size_t length_path = strlen(argv[i])+3+current_path_length;
+                dir_tab[cpt]= malloc(sizeof(char)*length_path);
+                if(!dir_tab[cpt]){
+                    Error_SetError(ERROR_MEMORY_ALLOCATION);
+                    goto cleanup;
+                }else{
+                    sprintf(dir_tab[cpt],"%s//%s",current_path,argv[i]);
+                    cpt++;
+                }
+            }
+        }
+
+    }
+    dir_tab[cpt]=NULL;
+    free(current_path);
+    return dir_tab;
+cleanup:
+    if (dir_tab) for(int i=0;i<cpt;i++) free(dir_tab[i]);
+    free(dir_tab);
+    free(current_path);
+	return NULL;
 }
+
 int treat_option(int* masque_option, char* option){
 	int return_value = 0;
 	if(*option!='-'){

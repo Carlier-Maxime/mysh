@@ -2,7 +2,6 @@
 #include <string.h>
 #include "CommandFactory.h"
 #include "../utils/Error.h"
-#include "../utils/macro.h"
 
 bool CommandFactory_resizeIfFull(CommandFactory* this) {
     if (!this || !this->commands) {

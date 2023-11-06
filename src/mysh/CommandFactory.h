@@ -13,6 +13,5 @@ typedef struct CommandFactory {
 CommandFactory *CommandFactory_create();
 void CommandFactory_destroy(CommandFactory *this);
 const Command** CommandFactory_buildCommands(CommandFactory* this, Token *tokens, char** args);
-int CommandFactory_getNbArgs(CommandFactory* this);
 
 #endif //MYSH_COMMAND_FACTORY_H

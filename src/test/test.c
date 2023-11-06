@@ -107,12 +107,12 @@ bool Test_AssertString(const char* expected, const char* actual) {
         u_int i;
         for (i = 0; i < min_len; i++) if (expected[i] != actual[i]) diff++;
         fprintf(stderr,RED("%snot same chars")" : %zu different(s) char(s) (the number of difference may be not exact)\n", indent, diff);
-        fprintf(stderr, "%sexpected:\n%s%s", indent, indent, indent);
+        fprintf(stderr, "%s""expected:\n%s%s", indent, indent, indent);
         for (i=0; expected[i]!='\0'; i++) {
             fprintf(stderr, "%c", expected[i]);
             if (expected[i]=='\n') fprintf(stderr, "%s%s", indent, indent);
         }
-        fprintf(stderr, "\r%sactual:\n%s%s", indent, indent, indent);
+        fprintf(stderr, "\r%s""actual:\n%s%s", indent, indent, indent);
         for (i=0; actual[i]!='\0'; i++) {
             fprintf(stderr, "%c", actual[i]);
             if (actual[i]=='\n') fprintf(stderr, "%s%s", indent, indent);

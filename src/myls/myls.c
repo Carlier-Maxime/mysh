@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
 int exec_my_ls(int argc, char* argv[]){
 	int return_value=0;
 	int masque_option;
-	char** args = treat_arg(argc, argv, &masque_option); //a désalouer à la fin
+	char** args = treat_arg(argc, argv, &masque_option); //a free at the end
 	
 	if(args == NULL){
 		return_value=1;
@@ -73,33 +73,33 @@ int exec_my_ls(int argc, char* argv[]){
 
 char** treat_arg(int argc, char* argv[], int* masque_option){
 	char** return_value=NULL;
-	int erreur=0;
+	int error=0;
 	*masque_option=0;
 	char* current_path= getcwd(NULL,0);
 	if(current_path == NULL){
-		erreur=1;
+        error=1;
 		Error_SetError(ERROR_GETCWD);
 	}else{
 		int current_path_length=strlen(current_path);
 
 		char** dir_tab = malloc(sizeof(char*)*(argc+1));
 		if(dir_tab == NULL){
-			erreur=1;
+            error=1;
 			Error_SetError(ERROR_MEMORY_ALLOCATION);
 		}else{
 			int cpt=0;
-			for(int i=0;i<argc && !erreur;i++){
+			for(int i=0;i<argc && !error; i++){
 				if(argv[i][0]=='-'){
 					int res=treat_option(masque_option,argv[i]);
 					if(res){
-						erreur=1;
+                        error=1;
 					}
 				}else{
 					if(argv[i][0]=='/'){
 
 						dir_tab[cpt]=malloc(sizeof(char)*(strlen(argv[i])+1));
 						if(dir_tab[cpt]==NULL){
-							erreur=1;
+                            error=1;
 							Error_SetError(ERROR_MEMORY_ALLOCATION);
 						}else{
 							strcpy(dir_tab[cpt],argv[i]);
@@ -111,7 +111,7 @@ char** treat_arg(int argc, char* argv[], int* masque_option){
 						int length_path = strlen(argv[i])+3+current_path_length;
 						dir_tab[cpt]= malloc(sizeof(char)*length_path);
 						if(dir_tab[cpt]==NULL){
-							erreur=1;
+                            error=1;
 							Error_SetError(ERROR_MEMORY_ALLOCATION);
 						}else{
 
@@ -123,7 +123,7 @@ char** treat_arg(int argc, char* argv[], int* masque_option){
 				}
 
 			}
-			if(erreur){
+			if(error){
 				for(int i=0;i<cpt;i++){
 					free(dir_tab[i]);
 				}
@@ -318,7 +318,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 
 					
 				}
-				//exit_error(errno, "Erreur readdir:")
+				//exit_error(errno, "Error readdir:")
 
 				
 				for(int i=0;i<file_size; i++){	
@@ -334,21 +334,21 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 		}
 		closedir(dir);
 	}
-	//exit_error(dir==NULL,"Erreur opendir: ")
+	//exit_error(dir==NULL,"Error open directory: ")
 
 	
 	
 	return return_value;
 }
 
-// droit, number of linked hard-link, owner, group, size, last modif time, nom (bleu=dossier, vert=executable)
+// permissions, number of linked hard-link, owner, group, size, last modify time, nom (bleu=dossier, vert=executable)
 int print_file(char* name,struct stat* file,int masque_option, int size_length){
 
 	int return_value=0;
-	char droits[12];
+	char permissions[12];
 	char date[16];
 
-	int is_executable = get_access_right_string(droits, file->st_mode);
+	int is_executable = get_access_right_string(permissions, file->st_mode);
 	return_value = get_date(date,file);
 	if(!return_value){
 		errno=0;
@@ -358,7 +358,7 @@ int print_file(char* name,struct stat* file,int masque_option, int size_length){
 			Error_SetError(ERROR_PWUID);
 		}
 
-		//exit_error(owner_name == NULL && !errno, "Erreur getpwuid: ")
+		//exit_error(owner_name == NULL && !errno, "Error getpwuid: ")
 
 		char * group_name = getgrgid(file->st_gid)->gr_name;
 		if(group_name == NULL && !errno){
@@ -368,7 +368,7 @@ int print_file(char* name,struct stat* file,int masque_option, int size_length){
 		if(!return_value){
 			if(owner_name == NULL) owner_name = " ";
 			if(group_name == NULL) group_name = " ";
-			printf("%s %ld %s %s ",droits,file->st_nlink,owner_name,group_name);
+			printf("%s %ld %s %s ", permissions, file->st_nlink, owner_name, group_name);
 			int length=get_number_length(file->st_size);
 			int length_diff=size_length-length;
 			for(int i=0;i<length_diff;i++){
@@ -404,7 +404,7 @@ int push_file(struct stat* file, int* file_size, int* file_max_size, full_file**
 			*file_tab=tmp;
 		}
 
-			//exit_error(file_tab==NULL,"Erreur realloc")
+			//exit_error(file_tab==NULL,"Error realloc")
 	}
 	if(!return_value){
 		(*file_tab+*file_size)->name= malloc((strlen(name)+1)*sizeof(char));
@@ -435,7 +435,7 @@ int push_directory(char* path,int* directory_size, int* directory_max_size, char
 			Error_SetError(ERROR_MEMORY_ALLOCATION);
 			*directory_tab=tmp;
 		}
-		//exit_error(directory_tab==NULL,"Erreur realloc")
+		//exit_error(directory_tab==NULL,"Error realloc")
 	}
 	if(!return_value){
 		*(*directory_tab+*directory_size)=path;

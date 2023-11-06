@@ -57,7 +57,7 @@ int get_date(char* string,struct stat* file){
 			}else{
 				char date_day[3];
 				convert_to_date_number(day, date_day);
-				//exit_error(current_date == NULL, "Erreur gmtime")
+				//exit_error(current_date == NULL, "Error gmtime")
 				if(/*current_date->tm_mon == month &&*/ current_date->tm_year == year){
 					char time_hour[3];
 					char time_minute[3];
@@ -69,12 +69,12 @@ int get_date(char* string,struct stat* file){
 				}
 			}	
 		}
-		//exit_error((int)current_time == -1, "Erreur time:")
+		//exit_error((int)current_time == -1, "Error time:")
 
 		
 	}
 	return return_value;
-	//exit_error(date == NULL, "Erreur gmtime")
+	//exit_error(date == NULL, "Error gmtime")
 	
 
 }

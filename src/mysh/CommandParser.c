@@ -66,7 +66,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
     unsigned int i;
     while ((token=TokenMapper_process(this->tokenMapper))!=TOKEN_NONE) {
         if (!CommandParser_resizeIfFull(this)) return false;
-        if (token!=TOKEN_CHAR) this->tokens[this->nb_token++]=token;
+        if (token!=TOKEN_CHAR && token!=TOKEN_NEW_LINE) this->tokens[this->nb_token++]=token;
         switch (token) {
             case TOKEN_ERROR:
                 return false;

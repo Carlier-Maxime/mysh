@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "../utils/Error.h"
 
-#define IS_WHITE_SPACE(c) ((c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
+#define IS_WHITE_SPACE(c) ((c)==EOF || (c)=='\n' || (c)==' ' || (c)=='\t' || (c)=='\v' || (c)=='\r')
 
 TokenMapper* TokenMapper_create() {
     TokenMapper* this = malloc(sizeof(TokenMapper));

@@ -4,8 +4,8 @@
 #include <stdbool.h>
 
 typedef enum {
-    TOKEN_ERROR,
     TOKEN_NONE,
+    TOKEN_ERROR,
     TOKEN_CHAR,
     TOKEN_STR,
     TOKEN_EXECUTE,

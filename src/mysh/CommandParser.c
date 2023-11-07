@@ -83,6 +83,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
                 if (this->nb_arg) {
                     tmp=this->args[this->nb_arg];
                     this->args[this->nb_arg]=NULL;
+                    this->tokens[this->nb_token]=TOKEN_NONE;
                     commands=CommandFactory_buildCommands(this->factory, this->tokens, this->args);
                     this->args[this->nb_arg]=tmp;
                     if (!commands) return false;

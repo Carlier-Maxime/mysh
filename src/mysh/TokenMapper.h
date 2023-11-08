@@ -4,15 +4,15 @@
 #include <stdbool.h>
 
 typedef enum {
-    TOKEN_ERROR,
     TOKEN_NONE,
+    TOKEN_ERROR,
     TOKEN_CHAR,
     TOKEN_STR,
     TOKEN_EXECUTE,
     TOKEN_NEW_LINE,
     TOKEN_PIPE,
     TOKEN_OR,
-    TOKEN_SEMICOLON,
+    TOKEN_COMMAND,
     TOKEN_BACKGROUND, // le &
     TOKEN_AND,
     TOKEN_REDIRECT_OUTPUT,
@@ -21,12 +21,14 @@ typedef enum {
 } Token;
 
 typedef struct TokenMapper {
-    char last_char;
-    Token last_token;
+    bool processCurrentChar, escapeChar, buildArg;
+    char last_char, current_char;
+    Token last_token, current_token;
 } TokenMapper;
 
 TokenMapper* TokenMapper_create();
 void TokenMapper_destroy(TokenMapper* this);
-Token TokenMapper_processChar(TokenMapper* this, char c);
+bool TokenMapper_setCurrentChar(TokenMapper* this, char c);
+Token TokenMapper_process(TokenMapper* this);
 
 #endif //MYSH_TOKEN_MAPPER_H

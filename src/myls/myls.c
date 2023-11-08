@@ -8,14 +8,13 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <time.h>
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
 
 #include "../utils/macro.h"
 #include "../utils/Error.h"
-#define is_not_point_directory(i) (strcmp(i,".") && strcmp(i,".."))
+#define is_not_point_directory(i) (strcmp(i,".")!=0 && strcmp(i,"..")!=0)
 
 char* current_root_path="/";
 
@@ -74,73 +73,56 @@ int exec_my_ls(int argc, char* argv[]){
 }
 
 char** treat_arg(int argc, char* argv[], int* masque_option){
-	char** return_value=NULL;
-	int erreur=0;
+    char** dir_tab=NULL;
+    int cpt=0;
 	*masque_option=0;
-	char* current_path= getcwd(NULL,0);
-	if(current_path == NULL){
-		erreur=1;
+	char* current_path = getcwd(NULL,0);
+	if(!current_path){
 		Error_SetError(ERROR_GETCWD);
-	}else{
-		int current_path_length=strlen(current_path);
-
-		char** dir_tab = malloc(sizeof(char*)*(argc+1));
-		if(dir_tab == NULL){
-			erreur=1;
-			Error_SetError(ERROR_MEMORY_ALLOCATION);
-		}else{
-			int cpt=0;
-			for(int i=0;i<argc && !erreur;i++){
-				if(argv[i][0]=='-'){
-					int res=treat_option(masque_option,argv[i]);
-					if(res){
-						erreur=1;
-					}
-				}else{
-					if(argv[i][0]=='/'){
-
-						dir_tab[cpt]=malloc(sizeof(char)*(strlen(argv[i])+1));
-						if(dir_tab[cpt]==NULL){
-							erreur=1;
-							Error_SetError(ERROR_MEMORY_ALLOCATION);
-						}else{
-							strcpy(dir_tab[cpt],argv[i]);
-							cpt++;
-						}
-						
-					}else{
-
-						int length_path = strlen(argv[i])+3+current_path_length;
-						dir_tab[cpt]= malloc(sizeof(char)*length_path);
-						if(dir_tab[cpt]==NULL){
-							erreur=1;
-							Error_SetError(ERROR_MEMORY_ALLOCATION);
-						}else{
-
-							sprintf(dir_tab[cpt],"%s//%s",current_path,argv[i]);
-
-							cpt++;
-						}
-					}
-				}
-
-			}
-			if(erreur){
-				for(int i=0;i<cpt;i++){
-					free(dir_tab[i]);
-				}
-				free(dir_tab);
-			}else{
-				dir_tab[cpt]=NULL;
-				return_value = dir_tab;
-			}
-		}
-		free(current_path);
-		
+        goto cleanup;
 	}
-	
-	return return_value;
+    size_t current_path_length=strlen(current_path);
+    dir_tab = malloc(sizeof(char*)*(argc+1));
+    if(!dir_tab){
+        Error_SetError(ERROR_MEMORY_ALLOCATION);
+        goto cleanup;
+    }
+    for(int i=0;i<argc; i++){
+        if(argv[i][0]=='-'){
+            int res=treat_option(masque_option,argv[i]);
+            if (res) goto cleanup;
+        }else{
+            if(argv[i][0]=='/'){
+                if(!(dir_tab[cpt]=malloc(sizeof(char)*(strlen(argv[i])+1)))){
+                    Error_SetError(ERROR_MEMORY_ALLOCATION);
+                    goto cleanup;
+                }
+                strcpy(dir_tab[cpt],argv[i]);
+                cpt++;
+            }else{
+                size_t length_path = strlen(argv[i])+3+current_path_length;
+                dir_tab[cpt]= malloc(sizeof(char)*length_path);
+                if(!dir_tab[cpt]){
+                    Error_SetError(ERROR_MEMORY_ALLOCATION);
+                    goto cleanup;
+                }else{
+                    sprintf(dir_tab[cpt],"%s//%s",current_path,argv[i]);
+                    cpt++;
+                }
+            }
+        }
+
+    }
+    dir_tab[cpt]=NULL;
+    free(current_path);
+    return dir_tab;
+cleanup:
+    if (dir_tab) for(int i=0;i<cpt;i++) free(dir_tab[i]);
+    free(dir_tab);
+    free(current_path);
+	return NULL;
 }
+
 int treat_option(int* masque_option, char* option){
 	int return_value = 0;
 	if(*option!='-'){
@@ -171,7 +153,7 @@ int treat_option(int* masque_option, char* option){
 	}
 	return return_value;
 }
-int explore_file(char* path,int masque_option, full_file* file_tab, int idx){
+int explore_file(char* path, full_file* file_tab, int idx){
 	struct stat * file = malloc(sizeof(struct stat));
 	if(file==NULL){
 		Error_SetError(ERROR_MEMORY_ALLOCATION);
@@ -202,7 +184,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 	int file_size=0;
 	int directory_max_size=10;
 	int directory_size=0;
-	int block_total=0;
+	size_t block_total=0;
 	struct dirent* directory;
 
 
@@ -267,6 +249,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 			break;
 		}
 
+
 		int stat_res =  stat(path,file);
 		if(stat_res==-1){
 			return_value=1;
@@ -289,6 +272,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 						return_value = 1;
 					}
 				}
+
 			}
 		}else{
 			free(path);
@@ -297,7 +281,7 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 												
 	}
 	if(!return_value){
-		printf("total %d\n",block_total);
+		printf("total %zu\n",block_total);
 		sort_file_tab(file_tab,file_size);
 		int max_length=0;
 		for(int i=0;i<file_size;i++){
@@ -334,17 +318,12 @@ int explore_dir(char * dir_path, int masque_option, int display_dir_name){
 	
 	closedir(dir);
 	
-	//exit_error(dir==NULL,"Erreur opendir: ")
-
-	
-	
 	return return_value;
 }
 
-// droit, number of linked hard-link, owner, group, size, last modif time, nom (bleu=dossier, vert=executable)
-int print_file(char* name,struct stat* file,int masque_option, int size_length){
-
-	int return_value=0;
+// permissions, number of linked hard-link, owner, group, size, last modify time, nom (bleu=dossier, vert=executable)
+int print_file(char* name,struct stat* file,int masque_option, size_t size_length){
+	int return_value;
 	char droits[12];
 	char date[16];
 
@@ -407,7 +386,7 @@ int push_file(struct stat* file, int* file_size, int* file_max_size, full_file**
 			return 1;
 		}
 
-			//exit_error(file_tab==NULL,"Erreur realloc")
+			//exit_error(file_tab==NULL,"Error realloc")
 	}
 	(*file_tab+*file_size)->name= malloc((strlen(name)+1)*sizeof(char));
 	if((*file_tab+*file_size)->name == NULL){
@@ -437,7 +416,7 @@ int push_directory(char* path,int* directory_size, int* directory_max_size, char
 			*directory_tab=tmp;
 			return 1;
 		}
-		//exit_error(directory_tab==NULL,"Erreur realloc")
+		//exit_error(directory_tab==NULL,"Error realloc")
 	}
 	*(*directory_tab+*directory_size)=path;
 
@@ -458,7 +437,7 @@ int explore_files_alones(char** args,int max_size, int masque_option){
 	}
 	
 	for(int i=0;i<max_size && !return_value;i++){
-		int res=explore_file(args[i],masque_option,file_tab,file_size);
+		int res=explore_file(args[i],file_tab,file_size);
 		if(res==1){
 			return_value=1;
 			break;

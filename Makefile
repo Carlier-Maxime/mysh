@@ -1,6 +1,6 @@
 CC = gcc
 LD = gcc
-CFLAGS = -Wall -Werror -pedantic
+CFLAGS = -Wall -Wextra -pedantic
 LD_FLAGS =
 SRC_DIR = src
 OBJ_DIR = obj

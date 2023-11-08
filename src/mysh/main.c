@@ -9,7 +9,7 @@ int main()
     Environment_init();
     CommandParser* commandParser = CommandParser_create();
     if (!commandParser) goto exit;
-    printf("%s%s%s> ", BLUE_BEGIN, Environment_getCwd(), COLOR_RESET);
+    printf(BLUE("%s")"> ", Environment_getCwd());
     while (CommandParser_consumeChar(commandParser, (char) (getchar())));
 exit:
     CommandParser_destroy(commandParser);

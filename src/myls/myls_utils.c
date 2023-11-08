@@ -31,49 +31,51 @@ int get_access_right_string(char* string, int st_mode){
 }
 
 int get_date(char* string,struct stat* file){
-	int return_value = 0;
+	//int return_value = 0;
 	const char* months[12]={"Jan","Feb","Mars","Apr","May","Jun","Jul","Aug", "Sep","Oct","Nov","Dec"};
 
 	struct tm* date = localtime(&(file->st_mtime));
 	if(date == NULL){
-		return_value = 1;
+	//	return_value = 1;
 		Error_SetError(ERROR_LOCALTIME);
+		return 1;
+	}
+	int min=date->tm_min;
+	int hour=date->tm_hour;
+	int day = date->tm_mday;
+	int month=date->tm_mon;
+	int year=date->tm_year;
+	time_t current_time = time(NULL);
+	if((int)current_time == -1){
+		//return_value=1;
+		Error_SetError(ERROR_TIME);
+		return 1;
+	}
+	struct tm* current_date = localtime(&current_time);
+	if(current_date==NULL){
+		//return_value=1;
+		Error_SetError(ERROR_LOCALTIME);
+		return 1;
+	}
+	char date_day[3];
+	convert_to_date_number(day, date_day);
+		//exit_error(current_date == NULL, "Erreur gmtime")
+	if(/*current_date->tm_mon == month &&*/ current_date->tm_year == year){
+		char time_hour[3];
+		char time_minute[3];
+		convert_to_time_number(hour,time_hour);
+		convert_to_time_number(min,time_minute);
+		sprintf(string,"%s %s %s:%s",months[month], date_day, time_hour, time_minute);
 	}else{
-		int min=date->tm_min;
-		int hour=date->tm_hour;
-		int day = date->tm_mday;
-		int month=date->tm_mon;
-		int year=date->tm_year;
-		time_t current_time = time(NULL);
-		if((int)current_time == -1){
-			return_value=1;
-			Error_SetError(ERROR_TIME);
-		}else{
-			struct tm* current_date = localtime(&current_time);
-			if(current_date==NULL){
-				return_value=1;
-				Error_SetError(ERROR_LOCALTIME);
-
-			}else{
-				char date_day[3];
-				convert_to_date_number(day, date_day);
-				//exit_error(current_date == NULL, "Erreur gmtime")
-				if(/*current_date->tm_mon == month &&*/ current_date->tm_year == year){
-					char time_hour[3];
-					char time_minute[3];
-					convert_to_time_number(hour,time_hour);
-					convert_to_time_number(min,time_minute);
-					sprintf(string,"%s %s %s:%s",months[month], date_day, time_hour, time_minute);
-				}else{
-					sprintf(string,"%s %s  %d",months[month], date_day,year+1900);
-				}
-			}	
-		}
-		//exit_error((int)current_time == -1, "Erreur time:")
+		sprintf(string,"%s %s  %d",months[month], date_day,year+1900);
+	}
+		
+	
+	//exit_error((int)current_time == -1, "Erreur time:")
 
 		
-	}
-	return return_value;
+	
+	return 0;
 	//exit_error(date == NULL, "Erreur gmtime")
 	
 

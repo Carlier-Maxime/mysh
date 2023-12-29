@@ -37,7 +37,7 @@ add_executable(myls src/myls/myls.c
         src/myls/myls_sorter.c
 )
 
-add_executable(test src/myps/myps.c
+add_executable(myps src/myps/myps.c
         src/utils/Error.h
         src/utils/Error.c
         src/utils/macro.h

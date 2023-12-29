@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <dirent.h>
+#include <errno.h>
 #include "../utils/Error.h"
 
 typedef struct {
@@ -55,7 +57,7 @@ void print_header() {
 
 void print_line(unsigned long i) {
     procInfo p = ps[i];
-    printf("%-*s %-*lu %-*f %-*f %-*lu %-*lu, %-*s %-*s %-*lu %-*lu %-*s",
+    printf("%-*s %-*lu %-*f %-*f %-*lu %-*lu, %-*s %-*s %-*lu %-*lu %-*s\n",
            maxLen[0], p.user, maxLen[0], p.pid, maxLen[0], p.cpu_percentage,
            maxLen[0], p.mem_percentage, maxLen[0], p.vsz, maxLen[0], p.rss, maxLen[0], p.tty, maxLen[0], p.stat,
            maxLen[0], p.start, maxLen[0], p.time, maxLen[0], p.command);
@@ -67,10 +69,37 @@ void print_ps() {
 }
 
 int main() {
+    DIR* dir = NULL;
+    struct dirent* entry;
+    procInfo proc;
     if (!grow_ps()) goto end;
+    if (!(dir=opendir("/proc"))) {
+        Error_SetError(ERROR_OPEN_DIR);
+        goto end;
+    }
+    while ((entry=readdir(dir))) {
+        errno=0;
+        long pid=strtol(entry->d_name, NULL, 10);
+        if (entry->d_type!=DT_DIR || errno!=0 || pid==0) continue;
+        proc.user = "?";
+        proc.pid = pid;
+        proc.cpu_percentage = 0;
+        proc.mem_percentage = 0;
+        proc.vsz = 0;
+        proc.rss = 0;
+        proc.tty = "?";
+        proc.stat = "?";
+        proc.start = 0;
+        proc.time = 0;
+        proc.command = "?";
+        if (nb_proc>=ps_size) grow_ps();
+        ps[nb_proc++]=proc;
+    }
+    closedir(dir);
     print_ps();
     end:
     if (Error_GetErrorStatus() != ERROR_NONE) Error_PrintErrorMsg("Error: ");
+    closedir(dir);
     free(ps);
     return 0;
 }

@@ -57,6 +57,7 @@ int main() {
     if (!grow_ps()) goto end;
     print_header();
     end:
+    if (Error_GetErrorStatus() != ERROR_NONE) Error_PrintErrorMsg("Error: ");
     free(ps);
     return 0;
 }

@@ -19,7 +19,7 @@ typedef struct {
 
 unsigned long ps_size = 64;
 procInfo* ps = NULL;
-unsigned long maxLen[11] = {0};
+unsigned int maxLen[11] = {0};
 
 bool grow_ps() {
     procInfo* tmp;
@@ -35,7 +35,7 @@ bool grow_ps() {
 }
 
 void print_header() {
-    unsigned int i, j;
+    unsigned int i;
     const char* words[] = {
             "USER",
             "PID",
@@ -49,10 +49,7 @@ void print_header() {
             "TIME",
             "COMMAND"
     };
-    for (i=0; i<11; i++) {
-        printf("%s ", words[i]);
-        if (maxLen[i]>strlen(words[i])) for (j=0; j<maxLen[i]-strlen(words[i]); j++) printf(" ");
-    }
+    for (i=0; i<11; i++) printf("%-*s ", (int) (maxLen[i]>strlen(words[i]) ? maxLen[i] : strlen(words[i])), words[i]);
     printf("\n");
 }
 

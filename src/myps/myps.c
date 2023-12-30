@@ -48,20 +48,9 @@ bool grow_ps() {
 }
 
 void print_header() {
-    const char* headers[] = {
-            "USER",
-            "PID",
-            "%CPU",
-            "%MEM",
-            "VSZ",
-            "RSS",
-            "TTY",
-            "STAT",
-            "START",
-            "TIME"
-    };
-    for (unsigned int i=0; i<10; i++) printf("%*s ", maxLen[i], headers[i]);
-    printf("COMMAND\n");
+    printf("%-*s %*s %*s %*s %*s %*s %-*s %-*s %-*s %-*s COMMAND\n",
+           maxLen[0], "USER", maxLen[1], "PID", maxLen[2], "%CPU", maxLen[3], "%MEM", maxLen[4], "VSZ",
+           maxLen[5], "RSS", maxLen[6], "TTY", maxLen[7], "STAT", maxLen[8], "START", maxLen[9], "TIME");
 }
 
 void print_line(unsigned long i) {

@@ -66,7 +66,7 @@ void print_header() {
 
 void print_line(unsigned long i) {
     procInfo p = ps[i];
-    printf("%*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu %.*s\n",
+    printf("%-*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu %.*s\n",
            maxLen[0], p.user, maxLen[1], p.pid, maxLen[2], p.cpu_percentage,
            maxLen[3], p.mem_percentage, maxLen[4], p.vsz, maxLen[5], p.rss, maxLen[6], p.tty, maxLen[7], p.stat,
            maxLen[8], p.start, maxLen[9], p.time, maxLen[10], p.command);

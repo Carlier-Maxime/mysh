@@ -1,7 +1,11 @@
 #include <malloc.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdlib.h>
 #include "CommandFactory.h"
 #include "../utils/Error.h"
+#include "../utils/macro.h"
 
 bool CommandFactory_resizeIfFull(CommandFactory* this) {
     if (!this || !this->commands) {
@@ -34,18 +38,37 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
     int token_length = 0;
     unsigned int nb_args=0, start_args=0;
     char* tmp;
-    int idx_arg=0;
+    //int idx_arg=0;
     this->nb_command=0;
-    Token last_token = TOKEN_NONE;
+
+    //
+
+    int length = 0;
+    while(args[length]!=NULL) length++;
+    subcommand* subcommand_list = malloc(sizeof(subcommand)*length);
+    int idx_subcommand_list = 0;
+    Token* token_list = malloc(sizeof(Token)*length);
+    int idx_token_list=0;
+    //
+
+
+    
+
     for (unsigned i=0; tokens[i]; i++) {
         if (!CommandFactory_resizeIfFull(this)) {
             this->nb_command=0;
+            free(tab_token);
+            //free(command_list);
+            free(token_list);
             return NULL;
         }
         //printf("%d,",tokens[i]);
         switch (tab_token[i]) {
             case TOKEN_ERROR:
                 printf("error, ");
+                free(tab_token);
+                //free(command_list);
+                free(token_list);
                 this->nb_command=0;
                 return NULL;
             case TOKEN_STR:
@@ -58,8 +81,9 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
                 break;
             case TOKEN_COMMAND:
 
-                subcommand(args+args_start_idx,args_length,tab_token+token_start, token_length);
-                printf("command(), ");
+                create_subcommand((subcommand_list+idx_subcommand_list++ ),args+args_start_idx,args_length,tab_token+token_start, token_length);
+                token_list[idx_token_list++]=tab_token[i];
+                //printf("command(), ");
                 if (nb_args==0) {
                     this->nb_command=0;
                     return NULL;
@@ -78,27 +102,34 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
                 nb_args=0;
                 break;
             case TOKEN_PIPE:
-                //    printf("pipe, ");
-                token_length++;
+                 create_subcommand((subcommand_list+idx_subcommand_list++ ),args+args_start_idx,args_length,tab_token+token_start, token_length);
+                 token_list[idx_token_list++]=tab_token[i];
+                //printf("pipe, ");
+                token_start+=token_length+1;
+                args_start_idx+= args_length;
+                token_length = 0;
+                args_length = 0;
                 break;
             case TOKEN_OR:
 
-                subcommand(args+args_start_idx,args_length,tab_token+token_start, token_length);
-                printf("or, ");
-                token_start+=token_length;
+                create_subcommand((subcommand_list+idx_subcommand_list++ ),args+args_start_idx,args_length,tab_token+token_start, token_length);
+                token_list[idx_token_list++]=tab_token[i];
+                //printf("or, ");
+                token_start+=token_length+1;
                 args_start_idx+= args_length;
                 token_length = 0;
                 args_length = 0;
                 break;
             case TOKEN_BACKGROUND:
                 //    printf("background, ");    
-                
+                token_length++;
                 
                 break;
             case TOKEN_AND:
-                subcommand(args+args_start_idx,args_length,tab_token+token_start, token_length);
-                printf("and, ");
-                token_start+=token_length;
+                create_subcommand((subcommand_list+idx_subcommand_list++ ),args+args_start_idx,args_length,tab_token+token_start, token_length);
+                token_list[idx_token_list++]=tab_token[i];
+                //printf("and, ");
+                token_start+=token_length+1;
                 args_start_idx+= args_length;
                 token_length = 0;
                 args_length = 0;
@@ -123,10 +154,17 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
             default:
                 break;
         }
-        last_token = tab_token[i];
     }
-
-    printf("\n");
+    execute_subcommand_list(subcommand_list, idx_subcommand_list, token_list, idx_token_list);
+    //printf("\n");
+    free(tab_token);
+    free(token_list);
+    /*for(int i=0;i<idx_subcommand_list;i++){
+        free(subcommand_list[i]->args);
+        free(subcommand_list[i]->token);
+        free(subcommand_list[i]);
+    }
+    free(subcommand_list);*/
     return (const Command**) this->commands;
 }
 
@@ -154,22 +192,30 @@ void CommandFactory_destroy(CommandFactory *this) {
     free(this);
 }
 
-void subcommand(char** args, int args_length, Token* tokens, int token_length){
-    int args_idx=0;
+void create_subcommand(subcommand* res, char** args, int args_length, Token* tokens, int token_length){
+    //subcommand* res= malloc(sizeof(subcommand));
+    res->args = malloc(sizeof(char*)*(args_length+1));
+    res->tokens = malloc(sizeof(Token)*(token_length+1));
+    for(int i=0;i<args_length;i++){
+        res->args[i] = args[i];
+    }
+    for(int i=0;i<token_length;i++){
+        res->tokens[i] = tokens[i];
+    }
+    res->tokens[token_length]=TOKEN_NONE;
+    res->args[args_length]=NULL;
+    //return res;
+
+    /*int args_idx=0;
     printf("(");
-    Token last_token = TOKEN_NONE;
-    for(int i=0;i<=token_length;i++){
+    //Token last_token = TOKEN_NONE;
+    for(int i=0;i<token_length;i++){
         switch (tokens[i]) {
             
             case TOKEN_STR:
                 printf("str(%s)",args[args_idx++]);
                 printf(", ");
                 
-                break;
-
-            case TOKEN_PIPE:
-                   printf("pipe, ");
-
                 break;
             
             case TOKEN_BACKGROUND:
@@ -187,11 +233,13 @@ void subcommand(char** args, int args_length, Token* tokens, int token_length){
                 printf("redirect input, ");
                 break;
             default:
+                printf("TRUC");
                 break;
         }
-        last_token = tokens[i];
+        //last_token = tokens[i];
     }
     printf("),");
+    return NULL;*/
 }
 
 Token* simplify_token_tab(const Token* tokens){
@@ -232,4 +280,53 @@ Token* simplify_token_tab(const Token* tokens){
         last_token = tokens[i];
     }
     return res;
+}
+
+
+void execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,Token* token_list,int idx_token_list){
+    int subcommand_res=0;
+    for(int i = 0;i<idx_subcommand_list;i++){
+        /*printf("sous-commande ");
+
+        switch(token_list[i]){
+            case TOKEN_OR:{
+                printf("or ");
+            }
+            break;
+            case TOKEN_AND:{
+                printf("and ");
+            }
+            break;
+            case TOKEN_PIPE:{
+                printf("pipe ");
+            }
+            break;
+            case TOKEN_COMMAND:{
+                printf("END");
+            }
+            break;
+            default:
+                break;
+        }
+
+        printf("\n");*/
+        if(     (i==0)
+            ||  (token_list[i-1] == TOKEN_OR && subcommand_res)
+            ||  (token_list[i-1] == TOKEN_AND && !subcommand_res)){
+
+        int pid = fork();
+        if(!pid){
+            execv(subcommand_list[i].args[0], subcommand_list[i].args);
+            execvp(subcommand_list[i].args[0], subcommand_list[i].args);
+            perror(RED("exec failed"));
+            exit(1);
+        }else if(pid < 0){
+            perror("fork failed");
+            exit(1);
+        }
+
+        wait(&subcommand_res);
+        }
+        //printf("\n");
+    }
 }

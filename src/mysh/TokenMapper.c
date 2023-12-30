@@ -9,7 +9,7 @@ TokenMapper* TokenMapper_create() {
     TokenMapper* this = malloc(sizeof(TokenMapper));
     if (!this) return NULL;
     this->last_char=EOF;
-    this->last_token=TOKEN_NONE;
+    this->last_token=TOKEN_START;
     this->current_char=EOF;
     this->current_token=TOKEN_NONE;
     this->processCurrentChar=false;
@@ -69,7 +69,7 @@ Token TokenMapper_process(TokenMapper* this) {
     }
     else if (IS_WHITE_SPACE(this->current_char)) {
         this->processCurrentChar = false;
-        this->current_token = IS_WHITE_SPACE(this->last_char) ? TOKEN_NONE : TOKEN_STR;
+        this->current_token = IS_WHITE_SPACE(this->last_char) || (this->last_token != TOKEN_NONE && this->last_token != TOKEN_CHAR) ? TOKEN_NONE : TOKEN_STR;
     }
     else if(this->current_char==';') {
         if (this->buildArg) this->current_token=TOKEN_STR;

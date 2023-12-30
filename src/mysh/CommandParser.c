@@ -64,6 +64,7 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
     const Command** commands;
     char* tmp;
     unsigned int i;
+
     while ((token=TokenMapper_process(this->tokenMapper))!=TOKEN_NONE) {
         if (!CommandParser_resizeIfFull(this)) return false;
         if (token!=TOKEN_CHAR && token!=TOKEN_NEW_LINE) this->tokens[this->nb_token++]=token;
@@ -84,6 +85,10 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
                     tmp=this->args[this->nb_arg];
                     this->args[this->nb_arg]=NULL;
                     this->tokens[this->nb_token]=TOKEN_NONE;
+                    for(unsigned i =0;i < this->nb_arg;i++){
+                        printf("%s, ", this->args[i]);
+                    }
+                    printf("\n");
                     commands=CommandFactory_buildCommands(this->factory, this->tokens, this->args);
                     this->args[this->nb_arg]=tmp;
                     if (!commands) return false;
@@ -98,6 +103,8 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
                 printf("> ");
                 break;
             default:
+                //this->args[this->nb_arg][this->arg_pos++]=c;
+            
                 break;
         }
     }

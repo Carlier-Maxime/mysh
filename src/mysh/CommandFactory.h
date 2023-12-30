@@ -12,6 +12,9 @@ typedef struct CommandFactory {
 
 CommandFactory *CommandFactory_create();
 void CommandFactory_destroy(CommandFactory *this);
+void subcommand(char** args, int args_length, Token* tokens, int token_length);
+Token* simplify_token_tab(const Token* tokens);
+
 const Command** CommandFactory_buildCommands(CommandFactory* this, const Token *tokens, char** args);
 
 #endif //MYSH_COMMAND_FACTORY_H

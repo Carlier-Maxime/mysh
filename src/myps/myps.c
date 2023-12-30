@@ -57,7 +57,7 @@ void print_header() {
 
 void print_line(unsigned long i) {
     procInfo p = ps[i];
-    printf("%*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu %*s\n",
+    printf("%*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu %-*s\n",
            maxLen[0], p.user, maxLen[1], p.pid, maxLen[2], p.cpu_percentage,
            maxLen[3], p.mem_percentage, maxLen[4], p.vsz, maxLen[5], p.rss, maxLen[6], p.tty, maxLen[7], p.stat,
            maxLen[8], p.start, maxLen[9], p.time, maxLen[10], p.command);
@@ -76,6 +76,38 @@ int numberOfDigits(unsigned long n) {
         cpt++;
     }
     return cpt;
+}
+
+char* readCmdLine(unsigned long pid) {
+    char path[numberOfDigits((1ULL << (sizeof(pid_t) * 8 - 1)) - 1)+16];
+    sprintf(path, "/proc/%lu/cmdline", pid);
+    FILE *file;
+    if (!(file=fopen(path, "r"))) {
+        Error_SetError(ERROR_OPEN_FILE);
+        return NULL;
+    }
+    unsigned long fileSize=0;
+    while (fgetc(file) != EOF) fileSize++;
+    fseek(file, 0, SEEK_SET);
+    char *cmdline = (char*) malloc(fileSize + 1);
+    if (!cmdline) {
+        Error_SetError(ERROR_MEMORY_ALLOCATION);
+        fclose(file);
+        return NULL;
+    }
+    size_t read = fread(cmdline, 1, fileSize, file);
+    cmdline[read] = '\0';
+    for (size_t i=0; i<read; i++) if (cmdline[i]=='\0') cmdline[i]=' ';
+    printf("Command line for %lu (size: %lu): %s\n", pid, fileSize, cmdline);
+    fclose(file);
+    return cmdline;
+}
+
+void free_ps() {
+    for (unsigned long i=0; i<nb_proc; i++) {
+        free(ps[i].command);
+    }
+    free(ps);
 }
 
 int main() {
@@ -104,15 +136,14 @@ int main() {
         proc.stat = "?";
         proc.start = 0;
         proc.time = 0;
-        proc.command = "?";
-        if (nb_proc>=ps_size) grow_ps();
+        proc.command = readCmdLine(pid);
+        if (nb_proc>=ps_size && !grow_ps()) goto end;
         ps[nb_proc++]=proc;
     }
-    closedir(dir);
     print_ps();
     end:
     if (Error_GetErrorStatus() != ERROR_NONE) Error_PrintErrorMsg("Error: ");
     closedir(dir);
-    free(ps);
+    free_ps();
     return 0;
 }

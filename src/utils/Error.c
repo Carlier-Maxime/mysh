@@ -21,7 +21,8 @@ const char* errorMsg[] = {
         "Could not open the directory",
         "The function stat() failed",
         "Pipe creation failed",
-        "Reading failed"
+        "Reading failed",
+        "Could not open the file"
 };
 
 void Error_SetError_(ErrorStatus newStatus, const char* newFile, unsigned int newLine) {

@@ -156,7 +156,10 @@ char *getUsernameFromPid(unsigned long pid) {
             Error_SetError(ERROR_PWUID);
             break;
         }
-        username = strdup(pw->pw_name);
+        username = malloc(sizeof(char)*9);
+        strncpy(username, pw->pw_name, 8);
+        if (strlen(pw->pw_name)>8) username[7]='+';
+        username[8]='\0';
         break;
     }
     free(line);

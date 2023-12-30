@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <pwd.h>
 #include "../utils/Error.h"
 #include "../utils/macro.h"
 
@@ -131,6 +132,49 @@ void free_ps() {
     free(ps);
 }
 
+char *getUsernameFromPid(unsigned long pid) {
+    char path[numberOfDigits((1ULL << (sizeof(pid_t) * 8 - 1)) - 1)+16];
+    FILE *file;
+    char *line = NULL;
+    size_t lineSize = 0;
+    char *username = NULL;
+    sprintf(path, "/proc/%lu/status", pid);
+    file = fopen(path, "r");
+    if (!file) {
+        Error_SetError(ERROR_OPEN_FILE);
+        return NULL;
+    }
+    while (getline(&line, &lineSize, file) != -1) {
+        if (strncmp(line, "Uid:", 4) != 0) {
+            free(line);
+            line=NULL;
+            lineSize=0;
+            continue;
+        }
+        char *uidString = strtok(line + 4, "\t ");
+        if (!uidString) {
+            Error_SetError(ERROR_NO_ARGUMENT);
+            break;
+        }
+        char* endPtr;
+        long uid = strtol(uidString, &endPtr, 10);
+        if (*endPtr!='\0') {
+            Error_SetError(ERROR_CONVERSION);
+            break;
+        }
+        struct passwd *pw = getpwuid(uid);
+        if (!pw) {
+            Error_SetError(ERROR_PWUID);
+            break;
+        }
+        username = strdup(pw->pw_name);
+        break;
+    }
+    free(line);
+    fclose(file);
+    return username;
+}
+
 int main() {
     DIR* dir = NULL;
     struct dirent* entry;
@@ -145,7 +189,9 @@ int main() {
         long pid=strtol(entry->d_name, NULL, 10);
         unsigned long len;
         if (entry->d_type!=DT_DIR || errno!=0 || pid==0) continue;
-        proc.user = "?";
+        proc.user = getUsernameFromPid(pid);
+        len = strlen(proc.user);
+        if (len>maxLen[0]) maxLen[0] = len;
         proc.pid = pid;
         len = numberOfDigits(pid);
         if (len>maxLen[1]) maxLen[1] = len;

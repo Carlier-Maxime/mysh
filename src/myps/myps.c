@@ -3,7 +3,10 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include "../utils/Error.h"
+#include "../utils/macro.h"
 
 typedef struct {
     const char* user;
@@ -21,20 +24,14 @@ typedef struct {
 
 unsigned long ps_size = 64, nb_proc = 0;
 procInfo* ps = NULL;
-const char* headers[] = {
-        "USER",
-        "PID",
-        "%CPU",
-        "%MEM",
-        "VSZ",
-        "RSS",
-        "TTY",
-        "STAT",
-        "START",
-        "TIME",
-        "COMMAND"
-};
 unsigned int maxLen[11] = {4,3,4,4,3,3,3,4,5,4,7};
+
+int getTerminalWidth() {
+    if (!isatty(STDOUT_FILENO)) return -1;
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    return w.ws_col;
+}
 
 bool grow_ps() {
     procInfo* tmp;
@@ -50,20 +47,45 @@ bool grow_ps() {
 }
 
 void print_header() {
-    unsigned int i;
-    for (i=0; i<11; i++) printf("%*s ", maxLen[i], headers[i]);
-    printf("\n");
+    const char* headers[] = {
+            "USER",
+            "PID",
+            "%CPU",
+            "%MEM",
+            "VSZ",
+            "RSS",
+            "TTY",
+            "STAT",
+            "START",
+            "TIME"
+    };
+    for (unsigned int i=0; i<10; i++) printf("%*s ", maxLen[i], headers[i]);
+    printf("COMMAND\n");
 }
 
 void print_line(unsigned long i) {
     procInfo p = ps[i];
-    printf("%*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu %-*s\n",
+    printf("%*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu %.*s\n",
            maxLen[0], p.user, maxLen[1], p.pid, maxLen[2], p.cpu_percentage,
            maxLen[3], p.mem_percentage, maxLen[4], p.vsz, maxLen[5], p.rss, maxLen[6], p.tty, maxLen[7], p.stat,
            maxLen[8], p.start, maxLen[9], p.time, maxLen[10], p.command);
 }
 
+bool goodWidth() {
+    int w = getTerminalWidth();
+    if (w==-1) return true;
+    unsigned int len=0;
+    for (unsigned long i=0; i<10; i++) len+=maxLen[i]+1;
+    if ((u_int) w<len+7) return false;
+    maxLen[10]=w-len;
+    return true;
+}
+
 void print_ps() {
+    if (!goodWidth()) {
+        fprintf(stderr, RED("Terminal width is too small, please resize or redirect to file"));
+        return;
+    }
     print_header();
     for (unsigned long i=0; i<nb_proc; i++) print_line(i);
 }
@@ -137,6 +159,8 @@ int main() {
         proc.start = 0;
         proc.time = 0;
         proc.command = readCmdLine(pid);
+        len = strlen(proc.command);
+        if (len>maxLen[10]) maxLen[10] = len;
         if (nb_proc>=ps_size && !grow_ps()) goto end;
         ps[nb_proc++]=proc;
     }

@@ -68,6 +68,16 @@ void print_ps() {
     for (unsigned long i=0; i<nb_proc; i++) print_line(i);
 }
 
+int numberOfDigits(unsigned long n) {
+    int cpt = 0;
+    if (n == 0) return 1;
+    while (n > 0) {
+        n /= 10;
+        cpt++;
+    }
+    return cpt;
+}
+
 int main() {
     DIR* dir = NULL;
     struct dirent* entry;
@@ -80,9 +90,12 @@ int main() {
     while ((entry=readdir(dir))) {
         errno=0;
         long pid=strtol(entry->d_name, NULL, 10);
+        unsigned long len;
         if (entry->d_type!=DT_DIR || errno!=0 || pid==0) continue;
         proc.user = "?";
         proc.pid = pid;
+        len = numberOfDigits(pid);
+        if (len>maxLen[1]) maxLen[1] = len;
         proc.cpu_percentage = 0;
         proc.mem_percentage = 0;
         proc.vsz = 0;

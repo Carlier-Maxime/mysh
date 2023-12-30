@@ -120,7 +120,6 @@ char* readCmdLine(unsigned long pid) {
     size_t read = fread(cmdline, 1, fileSize, file);
     cmdline[read] = '\0';
     for (size_t i=0; i<read; i++) if (cmdline[i]=='\0') cmdline[i]=' ';
-    printf("Command line for %lu (size: %lu): %s\n", pid, fileSize, cmdline);
     fclose(file);
     return cmdline;
 }

@@ -19,6 +19,7 @@ typedef enum {
     TOKEN_REDIRECT_OUTPUT,          // 11
     TOKEN_REDIRECT_OUTPUT_APPEND,   // 12
     TOKEN_REDIRECT_INPUT,           // 13
+    TOKEN_SEMICOLON,
 } Token;
 
 typedef struct TokenMapper {

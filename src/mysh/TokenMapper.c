@@ -69,12 +69,12 @@ Token TokenMapper_process(TokenMapper* this) {
     }
     else if (IS_WHITE_SPACE(this->current_char)) {
         this->processCurrentChar = false;
-        this->current_token = IS_WHITE_SPACE(this->last_char) || (this->last_token != TOKEN_NONE && this->last_token != TOKEN_CHAR) ? TOKEN_NONE : TOKEN_STR;
+        this->current_token = IS_WHITE_SPACE(this->last_char) || (this->last_token != TOKEN_NONE /*&& this->last_token != TOKEN_CHAR*/) ? TOKEN_NONE : TOKEN_STR;
     }
     else if(this->current_char==';') {
         if (this->buildArg) this->current_token=TOKEN_STR;
         else {
-            this->current_token = TOKEN_COMMAND;
+            this->current_token = TOKEN_SEMICOLON;
             this->processCurrentChar=false;
         }
     }
@@ -99,5 +99,6 @@ Token TokenMapper_process(TokenMapper* this) {
     else if (this->current_token==TOKEN_STR) this->buildArg=false;
     this->last_token=this->current_token;
     Error_SetError(ERROR_NONE);
+    //printf("%d(%c)", this->current_token,this->current_char);
     return this->current_token;
 }

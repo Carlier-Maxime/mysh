@@ -25,7 +25,7 @@ typedef enum {
 typedef struct TokenMapper {
     bool processCurrentChar, escapeChar, buildArg;
     char last_char, current_char;
-    Token last_token, current_token;
+    Token last_last_token, last_token, current_token;
 } TokenMapper;
 
 TokenMapper* TokenMapper_create();

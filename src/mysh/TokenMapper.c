@@ -10,6 +10,7 @@ TokenMapper* TokenMapper_create() {
     if (!this) return NULL;
     this->last_char=EOF;
     this->last_token=TOKEN_START;
+    this->last_last_token=TOKEN_START;
     this->current_char=EOF;
     this->current_token=TOKEN_NONE;
     this->processCurrentChar=false;
@@ -46,6 +47,8 @@ Token TokenMapper_process(TokenMapper* this) {
         Error_SetError(ERROR_NULL_POINTER);
         return TOKEN_ERROR;
     }
+
+    //printf("%c%c(%d), ",this->last_char,this->current_char,this->last_token);
     if (!this->processCurrentChar) this->current_token=TOKEN_NONE;
     else if (this->last_char=='\\' && this->escapeChar) {
         this->current_token = this->current_char=='\n' ? TOKEN_NEW_LINE : TOKEN_CHAR;
@@ -69,7 +72,8 @@ Token TokenMapper_process(TokenMapper* this) {
     }
     else if (IS_WHITE_SPACE(this->current_char)) {
         this->processCurrentChar = false;
-        this->current_token = IS_WHITE_SPACE(this->last_char) || (this->last_token != TOKEN_NONE /*&& this->last_token != TOKEN_CHAR*/) ? TOKEN_NONE : TOKEN_STR;
+        this->current_token = IS_WHITE_SPACE(this->last_char) || (this->last_token != TOKEN_NONE || this->last_last_token != TOKEN_CHAR /*&& this->last_token != TOKEN_CHAR*/) ? TOKEN_NONE : TOKEN_STR;
+        //this->current_token = !IS_WHITE_SPACE(this->last_char) && this->last_token == TOKEN_CHAR ? TOKEN_STR : TOKEN_NONE;
     }
     else if(this->current_char==';') {
         if (this->buildArg) this->current_token=TOKEN_STR;
@@ -97,7 +101,9 @@ Token TokenMapper_process(TokenMapper* this) {
     if (this->current_token==TOKEN_NONE) this->processCurrentChar=false;
     else if (this->current_token==TOKEN_CHAR) this->buildArg=true;
     else if (this->current_token==TOKEN_STR) this->buildArg=false;
+    this->last_last_token=this->last_token;
     this->last_token=this->current_token;
+
     Error_SetError(ERROR_NONE);
     //printf("%d(%c)", this->current_token,this->current_char);
     return this->current_token;

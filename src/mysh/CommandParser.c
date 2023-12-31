@@ -85,10 +85,10 @@ bool CommandParser_consumeChar(struct CommandParser* this, char c) {
                     tmp=this->args[this->nb_arg];
                     this->args[this->nb_arg]=NULL;
                     this->tokens[this->nb_token]=TOKEN_NONE;
-                    for(unsigned i =0;i < this->nb_arg;i++){
+                    /*for(unsigned i =0;i < this->nb_arg;i++){
                         printf("%s, ", this->args[i]);
-                    }
-                    printf("\n");
+                    }*/
+                    //printf("\n");
                     commands=CommandFactory_buildCommands(this->factory, this->tokens, this->args);
                     this->args[this->nb_arg]=tmp;
                     if (!commands) return false;

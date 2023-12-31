@@ -224,8 +224,8 @@ void create_subcommand(subcommand* res, char** args, int args_length, Token* tok
         switch (tokens[i]) {
             
             case TOKEN_STR:
-                /*printf("str(%s)",args[args_idx++]);
-                printf(", ");*/
+      //          printf("str(%s)",args[args_idx++]);
+      //          printf(", ");
                 
                 break;
             
@@ -299,7 +299,6 @@ int execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,
     int last_command_was_exec=0;
     int fd[2];
     int input;
-
     for(int i = 0;i<idx_subcommand_list;i++){
         //printf("%d\n", subcommand_res);
         if(     (i==0)

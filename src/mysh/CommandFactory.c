@@ -355,10 +355,10 @@ int execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,
                     close(out);
                     
                 }
-                exit(1);
+                return 2;
             }else if(pid < 0){
                 perror("fork failed");
-                exit(1);
+                return 1;
             }
             if(token_list[i]==TOKEN_PIPE){
                 close(fd[1]);

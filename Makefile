@@ -5,7 +5,7 @@ LD_FLAGS =
 SRC_DIR = src
 OBJ_DIR = obj
 OBJS_GLOBAL = $(patsubst $(SRC_DIR)/utils/%.c,$(OBJ_DIR)/utils/%.o,$(wildcard $(SRC_DIR)/utils/*.c))
-EXE = mysh test myls
+EXE = mysh test myls myps
 OBJ_DIRS := $(addprefix $(OBJ_DIR)/, $(EXE) utils)
 
 all : $(OBJ_DIRS) $(EXE)

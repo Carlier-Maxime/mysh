@@ -19,7 +19,7 @@ typedef struct {
     unsigned long vsz;
     unsigned long rss;
     char* tty;
-    char* stat;
+    char stat;
     time_t start;
     unsigned long time;
     char* command;
@@ -79,7 +79,7 @@ void print_line(unsigned long i) {
     procInfo p = ps[i];
     char dateStart[getSizeForStartTime(p.start)];
     strftime(dateStart, sizeof(dateStart), getTimeFormatForStartTime(p.start), localtime(&p.start));
-    printf("%-*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*s %*lu:%02lu %.*s\n",
+    printf("%-*s %*lu %*.1f %*.1f %*lu %*lu %*s %*c %*s %*lu:%02lu %.*s\n",
            maxLen[0], p.user, maxLen[1], p.pid, maxLen[2], p.cpu_percentage,
            maxLen[3], p.mem_percentage, maxLen[4], p.vsz, maxLen[5], p.rss, maxLen[6], p.tty, maxLen[7], p.stat,
            maxLen[8], dateStart, maxLen[9]-3, p.time/60, p.time%60, maxLen[10], p.command);
@@ -192,7 +192,7 @@ char *getUsernameFromPid(unsigned long pid) {
     return username;
 }
 
-bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_long *vsz, u_long *rss, time_t *start_time, u_long *run_time) {
+bool getStat(unsigned long pid, char *state, double *cpuPercentage, double *memPercentage, u_long *vsz, u_long *rss, time_t *start_time, u_long *run_time) {
     char path[numberOfDigits((1ULL << (sizeof(pid_t) * 8 - 1)) - 1)+16];
     FILE *file;
     char *line = NULL;
@@ -210,10 +210,10 @@ bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_
         return false;
     }
     unsigned long utime, stime, starttime;
-    sscanf(line, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u "
+    sscanf(line, "%*d %*s %c %*d %*d %*d %*d %*d %*u %*u "
                  "%*u %*u %*u %lu %lu %*d %*d %*d %*d %*d "
                  "%*d %lu %lu %lu %*u %*d %*d %*d %*u",
-           &utime, &stime, &starttime, vsz, rss);
+           state, &utime, &stime, &starttime, vsz, rss);
     free(line);
     *vsz = *vsz/1024;
     *rss = (*rss) * getpagesize() / 1024;
@@ -267,7 +267,7 @@ int main() {
         proc.pid = pid;
         len = numberOfDigits(pid);
         if (len>maxLen[1]) maxLen[1] = len;
-        getStat(pid, &proc.cpu_percentage, &proc.mem_percentage, &proc.vsz, &proc.rss, &proc.start, &proc.time);
+        getStat(pid, &proc.stat, &proc.cpu_percentage, &proc.mem_percentage, &proc.vsz, &proc.rss, &proc.start, &proc.time);
         len = numberOfDigits(proc.vsz);
         if (len>maxLen[4]) maxLen[4] = len;
         len = numberOfDigits(proc.rss);
@@ -277,7 +277,6 @@ int main() {
         len = numberOfDigits(proc.time/60)+3;
         if (len>maxLen[9]) maxLen[9] = len;
         proc.tty = "?";
-        proc.stat = "?";
         proc.command = readCmdLine(pid);
         len = strlen(proc.command);
         if (len>maxLen[10]) maxLen[10] = len;

@@ -58,10 +58,10 @@ void print_header() {
 
 void print_line(unsigned long i) {
     procInfo p = ps[i];
-    printf("%-*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu %.*s\n",
+    printf("%-*s %*lu %*.1f %*.1f %*lu %*lu %*s %*s %*lu %*lu:%02lu %.*s\n",
            maxLen[0], p.user, maxLen[1], p.pid, maxLen[2], p.cpu_percentage,
            maxLen[3], p.mem_percentage, maxLen[4], p.vsz, maxLen[5], p.rss, maxLen[6], p.tty, maxLen[7], p.stat,
-           maxLen[8], p.start, maxLen[9], p.time, maxLen[10], p.command);
+           maxLen[8], p.start, maxLen[9]-3, p.time/60, p.time%60, maxLen[10], p.command);
 }
 
 bool goodWidth() {
@@ -171,7 +171,7 @@ char *getUsernameFromPid(unsigned long pid) {
     return username;
 }
 
-bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_long *vsz, u_long *rss) {
+bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_long *vsz, u_long *rss, u_long *time) {
     char path[numberOfDigits((1ULL << (sizeof(pid_t) * 8 - 1)) - 1)+16];
     FILE *file;
     char *line = NULL;
@@ -196,9 +196,11 @@ bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_
     free(line);
     *vsz = *vsz/1024;
     *rss = (*rss) * getpagesize() / 1024;
-    *cpuPercentage = (double) (utime + stime) / (current_time - (double) starttime) * 100.0;
+    *time = utime + stime;
+    *cpuPercentage = (double) *time / (current_time - (double) starttime) * 100.0;
     *memPercentage = (double) (*rss) / (double) totalRAM * 100;
     fclose(file);
+    *time = *time / sysconf(_SC_CLK_TCK);
     return true;
 }
 
@@ -241,15 +243,16 @@ int main() {
         proc.pid = pid;
         len = numberOfDigits(pid);
         if (len>maxLen[1]) maxLen[1] = len;
-        getStat(pid, &proc.cpu_percentage, &proc.mem_percentage, &proc.vsz, &proc.rss);
+        getStat(pid, &proc.cpu_percentage, &proc.mem_percentage, &proc.vsz, &proc.rss, &proc.time);
         len = numberOfDigits(proc.vsz);
         if (len>maxLen[4]) maxLen[4] = len;
         len = numberOfDigits(proc.rss);
         if (len>maxLen[5]) maxLen[5] = len;
+        len = numberOfDigits(proc.time/60)+3;
+        if (len>maxLen[9]) maxLen[9] = len;
         proc.tty = "?";
         proc.stat = "?";
         proc.start = 0;
-        proc.time = 0;
         proc.command = readCmdLine(pid);
         len = strlen(proc.command);
         if (len>maxLen[10]) maxLen[10] = len;

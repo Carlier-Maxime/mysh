@@ -4,26 +4,28 @@
 #include <stdbool.h>
 
 typedef enum {
-    TOKEN_NONE,
-    TOKEN_ERROR,
-    TOKEN_CHAR,
-    TOKEN_STR,
-    TOKEN_EXECUTE,
-    TOKEN_NEW_LINE,
-    TOKEN_PIPE,
-    TOKEN_OR,
-    TOKEN_COMMAND,
-    TOKEN_BACKGROUND, // le &
-    TOKEN_AND,
-    TOKEN_REDIRECT_OUTPUT,
-    TOKEN_REDIRECT_OUTPUT_APPEND,
-    TOKEN_REDIRECT_INPUT,
+    TOKEN_NONE,     // 0
+    TOKEN_ERROR,    // 1
+    TOKEN_START,
+    TOKEN_CHAR,     // 2
+    TOKEN_STR,      // 3
+    TOKEN_EXECUTE,  // 4
+    TOKEN_NEW_LINE, // 5
+    TOKEN_PIPE,     // 6
+    TOKEN_OR,       // 7
+    TOKEN_COMMAND,  // 8
+    TOKEN_BACKGROUND, // 9 // le &
+    TOKEN_AND,                      // 10
+    TOKEN_REDIRECT_OUTPUT,          // 11
+    TOKEN_REDIRECT_OUTPUT_APPEND,   // 12
+    TOKEN_REDIRECT_INPUT,           // 13
+    TOKEN_SEMICOLON,
 } Token;
 
 typedef struct TokenMapper {
     bool processCurrentChar, escapeChar, buildArg;
     char last_char, current_char;
-    Token last_token, current_token;
+    Token last_last_token, last_token, current_token;
 } TokenMapper;
 
 TokenMapper* TokenMapper_create();

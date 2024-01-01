@@ -36,12 +36,6 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
     int args_length = 0;
     int token_start =0;
     int token_length = 0;
-    //unsigned int nb_args=0, start_args=0;
-    char* tmp;
-    //int idx_arg=0;
-    //this->nb_command=0;
-
-    //
 
     int length = 0;
     while(args[length]!=NULL) length++;
@@ -53,7 +47,6 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
 
 
     
-
     for (unsigned i=0; tokens[i]; i++) {
         if (!CommandFactory_resizeIfFull(this)) {
             this->nb_command=0;
@@ -92,23 +85,6 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
 
                 create_subcommand((subcommand_list+idx_subcommand_list++ ),args+args_start_idx,args_length,tab_token+token_start, token_length);
                 token_list[idx_token_list++]=tab_token[i];
-                //printf("command(), ");
-                /*if (nb_args==0) {
-                    this->nb_command=0;
-                    return NULL;
-                }*/
-                //tmp = args[start_args+nb_args];
-                //args[start_args+nb_args]=NULL;
-                //Command* command = Command_create(args[start_args], (const char**) (args+start_args));
-                //args[start_args+nb_args]=tmp;
-                /*if (!command) {
-                    this->nb_command=0;
-                    return NULL;
-                }
-                Command_destroy(this->commands[this->nb_command]);
-                *///this->commands[this->nb_command++]=command;
-                //start_args+=nb_args;
-                //nb_args=0;
                 break;
             case TOKEN_PIPE:
                  create_subcommand((subcommand_list+idx_subcommand_list++ ),args+args_start_idx,args_length,tab_token+token_start, token_length);
@@ -164,7 +140,7 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
                 break;
         }
     }
-    execute_subcommand_list(subcommand_list, idx_subcommand_list, token_list, idx_token_list);
+    int res = execute_subcommand_list(subcommand_list, idx_subcommand_list, token_list, idx_token_list);
     //printf("\n");
     for(int i=0;i<idx_subcommand_list;i++){
         free(subcommand_list[i].args);
@@ -176,6 +152,7 @@ const Command** CommandFactory_buildCommands(CommandFactory* this, const Token* 
     free(subcommand_list);
 
     free(tab_token);
+    if(res > 0) return NULL;
     return (const Command**) this->commands;
 }
 
@@ -215,42 +192,6 @@ void create_subcommand(subcommand* res, char** args, int args_length, Token* tok
     }
     res->tokens[token_length]=TOKEN_NONE;
     res->args[args_length]=NULL;
-    //return res;
-
-    int args_idx=0;
-    //printf("(");
-    //Token last_token = TOKEN_NONE;
-    for(int i=0;i<token_length;i++){
-        switch (tokens[i]) {
-            
-            case TOKEN_STR:
-      //          printf("str(%s)",args[args_idx++]);
-      //          printf(", ");
-                
-                break;
-            
-            case TOKEN_BACKGROUND:
-                 //   printf("background, ");
-                
-                break;
-            case TOKEN_REDIRECT_OUTPUT:
-                 //   printf("redirect output, ");
-                break;
-            case TOKEN_REDIRECT_OUTPUT_APPEND:
-                //printf("redirect output append, ");
-                break;
-
-            case TOKEN_REDIRECT_INPUT:
-                //printf("redirect input, ");
-                break;
-            default:
-                //printf("TRUC");
-                break;
-        }
-        //last_token = tokens[i];
-    }
-    //printf("),");
-    //return NULL;
 }
 
 Token* simplify_token_tab(const Token* tokens){
@@ -315,8 +256,12 @@ int execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,
                 
                 if(pipe(fd)==-1){
                     perror("pipe failed");
+                    return 1;
                 }
 
+            }
+            if(!strcmp(subcommand_list[i].args[0],"exit")){
+                return 1;
             }
             int pid = fork();
 
@@ -327,6 +272,7 @@ int execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,
                 int in;
                 if(i>0 && token_list[i-1]==TOKEN_PIPE){
                     in=dup(0);
+
                     close(0);
                     tmp1=dup(input);
                     close(input);
@@ -340,7 +286,8 @@ int execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,
                 }
                 execv(subcommand_list[i].args[0], subcommand_list[i].args);
                 execvp(subcommand_list[i].args[0], subcommand_list[i].args);
-                perror(RED("exec failed"));
+                perror(subcommand_list[i].args[0]);
+                Error_SetError(ERROR_EXEC);
 
                 if(i>0 && token_list[i-1]==TOKEN_PIPE){
                     close(tmp1);
@@ -357,8 +304,10 @@ int execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,
                 }
                 return 2;
             }else if(pid < 0){
+
                 perror("fork failed");
-                return 1;
+                Error_SetError(ERROR_FORK);
+                return -1;
             }
             if(token_list[i]==TOKEN_PIPE){
                 close(fd[1]);
@@ -367,7 +316,7 @@ int execute_subcommand_list(subcommand* subcommand_list,int idx_subcommand_list,
                 close(input);
                 //if()
             }
-            wait(&subcommand_res);
+            waitpid(pid,&subcommand_res,0);
         }else{
             last_command_was_exec=0;
         }

@@ -21,7 +21,8 @@ typedef enum {
     ERROR_PIPE=14,
     ERROR_READ=15,
     ERROR_OPEN_FILE=16,
-    ERROR_CONVERSION=17
+    ERROR_CONVERSION=17,
+    ERROR_EXEC=18,
 } ErrorStatus;
 
 #ifdef DEBUG

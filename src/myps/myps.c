@@ -6,14 +6,15 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <pwd.h>
+#include <sys/sysinfo.h>
 #include "../utils/Error.h"
 #include "../utils/macro.h"
 
 typedef struct {
     const char* user;
     unsigned long pid;
-    float cpu_percentage;
-    float mem_percentage;
+    double cpu_percentage;
+    double mem_percentage;
     unsigned long vsz;
     unsigned long rss;
     char* tty;
@@ -26,6 +27,8 @@ typedef struct {
 unsigned long ps_size = 64, nb_proc = 0;
 procInfo* ps = NULL;
 unsigned int maxLen[11] = {4,3,4,4,3,3,3,4,5,4,7};
+unsigned long long totalRAM;
+double current_time;
 
 int getTerminalWidth() {
     if (!isatty(STDOUT_FILENO)) return -1;
@@ -167,15 +170,63 @@ char *getUsernameFromPid(unsigned long pid) {
     return username;
 }
 
+bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_long *vsz, u_long *rss) {
+    char path[numberOfDigits((1ULL << (sizeof(pid_t) * 8 - 1)) - 1)+16];
+    FILE *file;
+    char *line = NULL;
+    size_t lineSize=0;
+    snprintf(path, sizeof(path), "/proc/%lu/stat", pid);
+    file = fopen(path, "r");
+    if (!file) {
+        Error_SetError(ERROR_OPEN_FILE);
+        return false;
+    }
+    if (getline(&line, &lineSize, file) == -1) {
+        Error_SetError(ERROR_READ);
+        fclose(file);
+        return false;
+    }
+    unsigned long utime, stime, starttime;
+    sscanf(line, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*lu "
+                 "%*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld "
+                 "%*ld %lu %lu %lu %*lu %*ld %*ld %*ld %*lu",
+           &utime, &stime, &starttime, vsz, rss);
+    *vsz = *vsz/1024;
+    *rss = (*rss) * getpagesize() / 1024;
+    *cpuPercentage = (double) (utime + stime) / (current_time - (double) starttime) * 100.0;
+    *memPercentage = (double) (*rss) / (double) totalRAM * 100;
+    fclose(file);
+    return true;
+}
+
 int main() {
     DIR* dir = NULL;
     struct dirent* entry;
     procInfo proc;
+    struct sysinfo sys;
+    if (sysinfo(&sys) != 0) {
+        Error_SetError(ERROR_ENVIRONMENT);
+        goto end;
+    }
+    totalRAM = sys.totalram * sys.mem_unit / 1024;
+    FILE* file = fopen("/proc/uptime", "r");
+    if (!file) {
+        Error_SetError(ERROR_OPEN_FILE);
+        goto end;
+    }
+    char uptime_str[16];
+    if (fscanf(file, "%15s", uptime_str) != 1) {
+        Error_SetError(ERROR_READ);
+        fclose(file);
+        goto end;
+    }
+    fclose(file);
     if (!grow_ps()) goto end;
     if (!(dir=opendir("/proc"))) {
         Error_SetError(ERROR_OPEN_DIR);
         goto end;
     }
+    current_time = strtod(uptime_str, NULL) * (double) sysconf(_SC_CLK_TCK);
     while ((entry=readdir(dir))) {
         errno=0;
         long pid=strtol(entry->d_name, NULL, 10);
@@ -187,10 +238,11 @@ int main() {
         proc.pid = pid;
         len = numberOfDigits(pid);
         if (len>maxLen[1]) maxLen[1] = len;
-        proc.cpu_percentage = 0;
-        proc.mem_percentage = 0;
-        proc.vsz = 0;
-        proc.rss = 0;
+        getStat(pid, &proc.cpu_percentage, &proc.mem_percentage, &proc.vsz, &proc.rss);
+        len = numberOfDigits(proc.vsz);
+        if (len>maxLen[4]) maxLen[4] = len;
+        len = numberOfDigits(proc.rss);
+        if (len>maxLen[5]) maxLen[5] = len;
         proc.tty = "?";
         proc.stat = "?";
         proc.start = 0;

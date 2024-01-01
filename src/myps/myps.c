@@ -189,9 +189,9 @@ bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_
         return false;
     }
     unsigned long utime, stime, starttime;
-    sscanf(line, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*lu "
-                 "%*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld "
-                 "%*ld %lu %lu %lu %*lu %*ld %*ld %*ld %*lu",
+    sscanf(line, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u "
+                 "%*u %*u %*u %lu %lu %*d %*d %*d %*d %*d "
+                 "%*d %lu %lu %lu %*u %*d %*d %*d %*u",
            &utime, &stime, &starttime, vsz, rss);
     free(line);
     *vsz = *vsz/1024;

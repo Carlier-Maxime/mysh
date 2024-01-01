@@ -79,10 +79,37 @@ void print_line(unsigned long i) {
     procInfo p = ps[i];
     char dateStart[getSizeForStartTime(p.start)];
     strftime(dateStart, sizeof(dateStart), getTimeFormatForStartTime(p.start), localtime(&p.start));
-    printf("%-*s %*lu %*.1f %*.1f %*lu %*lu %*s %*c %*s %*lu:%02lu %.*s\n",
+    char* color_begin;
+    switch (p.stat) {
+        case 'R':
+            color_begin = GREEN_BEGIN;
+            break;
+        case 'S':
+            color_begin = BLUE_BEGIN;
+            break;
+        case 'D':
+            color_begin = BLUE_DEEP_BEGIN;
+            break;
+        case 'Z':
+            color_begin = RED_BEGIN;
+            break;
+        case 'T':
+            color_begin = YELLOW_BEGIN;
+            break;
+        case 't':
+            color_begin = YELLOW_DEEP_BEGIN;
+            break;
+        case 'W':
+            color_begin = PURPLE_BEGIN;
+            break;
+        case 'X':
+            color_begin = GRAY_BEGIN;
+            break;
+    }
+    printf("%s%-*s %*lu %*.1f %*.1f %*lu %*lu %*s %*c %*s %*lu:%02lu %.*s%s\n", color_begin,
            maxLen[0], p.user, maxLen[1], p.pid, maxLen[2], p.cpu_percentage,
            maxLen[3], p.mem_percentage, maxLen[4], p.vsz, maxLen[5], p.rss, maxLen[6], p.tty, maxLen[7], p.stat,
-           maxLen[8], dateStart, maxLen[9]-3, p.time/60, p.time%60, maxLen[10], p.command);
+           maxLen[8], dateStart, maxLen[9]-3, p.time/60, p.time%60, maxLen[10], p.command, COLOR_RESET);
 }
 
 bool goodWidth() {

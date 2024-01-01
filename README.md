@@ -7,8 +7,8 @@
 - [X] Run commands from a command prompt
 - [X] Show current directory
 - [X] Wait for a command to finish executing before re-displaying the command prompt
-- [ ] Unconditional sequence of commands with ';'
-- [ ] Conditional sequence of command with '&&' and '||'
+- [X] Unconditional sequence of commands with ';'
+- [X] Conditional sequence of command with '&&' and '||'
 - [ ] Support wildcards : '*', '?', '[ens]'
 - [ ] Internal command 'cd' for change directory
 - [X] Internal command 'exit' for quit mysh
@@ -17,7 +17,7 @@
 - [ ] Internal command 'status' (show status for last process executed in foreground)
 - [ ] External command 'myls' : 'ls -l' with parameter '-a' and '-R' (colored by file type)
 - [ ] External command 'myps' : 'ps aux' with color by process state
-- [ ] Pipeline redirection '|'
+- [X] Pipeline redirection '|'
 - [ ] File Redirection : '>', '>>', '2>', '2>>', '>&', '>>&', '<'
 - [ ] Support background command with '&'
 - [ ] Internal command 'myjob' : display all process in background

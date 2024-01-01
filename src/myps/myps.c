@@ -11,7 +11,7 @@
 #include "../utils/macro.h"
 
 typedef struct {
-    const char* user;
+    char* user;
     unsigned long pid;
     double cpu_percentage;
     double mem_percentage;
@@ -120,6 +120,7 @@ char* readCmdLine(unsigned long pid) {
 void free_ps() {
     for (unsigned long i=0; i<nb_proc; i++) {
         free(ps[i].command);
+        free(ps[i].user);
     }
     free(ps);
 }
@@ -184,6 +185,7 @@ bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_
     if (getline(&line, &lineSize, file) == -1) {
         Error_SetError(ERROR_READ);
         fclose(file);
+        free(line);
         return false;
     }
     unsigned long utime, stime, starttime;
@@ -191,6 +193,7 @@ bool getStat(unsigned long pid, double *cpuPercentage, double *memPercentage, u_
                  "%*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld "
                  "%*ld %lu %lu %lu %*lu %*ld %*ld %*ld %*lu",
            &utime, &stime, &starttime, vsz, rss);
+    free(line);
     *vsz = *vsz/1024;
     *rss = (*rss) * getpagesize() / 1024;
     *cpuPercentage = (double) (utime + stime) / (current_time - (double) starttime) * 100.0;

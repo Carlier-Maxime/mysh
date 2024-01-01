@@ -15,7 +15,7 @@
 - [ ] Ctrl-C for exit by killing all background processes (with confirmation request)
 - [ ] Ctrl-C for kill current process (not exit mysh)
 - [ ] Internal command 'status' (show status for last process executed in foreground)
-- [ ] External command 'myls' : 'ls -l' with parameter '-a' and '-R' (colored by file type)
+- [X] External command 'myls' : 'ls -l' with parameter '-a' and '-R' (colored by file type)
 - [ ] External command 'myps' : 'ps aux' with color by process state
 - [X] Pipeline redirection '|'
 - [ ] File Redirection : '>', '>>', '2>', '2>>', '>&', '>>&', '<'

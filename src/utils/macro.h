@@ -9,5 +9,10 @@
 #define GREEN(str) COLOR(GREEN_BEGIN, str)
 #define BLUE_BEGIN "\033[34m"
 #define BLUE(str) COLOR(BLUE_BEGIN, str)
+#define BLUE_DEEP_BEGIN "\033[34;1m"
+#define YELLOW_BEGIN "\033[33m"
+#define YELLOW_DEEP_BEGIN "\033[33;1m"
+#define PURPLE_BEGIN "\033[35m"
+#define GRAY_BEGIN "\033[90m"
 
 #endif //MYSH_MACRO_H
